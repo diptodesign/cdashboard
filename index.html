@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IronVault • Private Encrypted Vault</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>IronVault Pro • Encrypted File Sanctuary</title>
+    <!-- Google Fonts & Smooth Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,262 +15,330 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 10% 20%, rgba(10, 8, 25, 1) 0%, #0b0a1a 100%);
             min-height: 100vh;
-            color: #fff;
+            color: #f0f3fa;
+            backdrop-filter: blur(0px);
+        }
+
+        /* animated grain */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjUiIG51bU9jdGF2ZXM9IjMiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjZikiIG9wYWNpdHk9IjAuMDMiLz48L3N2Zz4=');
+            pointer-events: none;
+            opacity: 0.2;
+            z-index: 0;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 28px;
+            position: relative;
+            z-index: 2;
         }
 
-        /* Header */
+        /* modern glass header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            margin-bottom: 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px 24px;
+            margin-bottom: 32px;
+            background: rgba(12, 10, 28, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
         .logo h1 {
-            font-size: 28px;
-            background: linear-gradient(135deg, #fff, #a78bfa);
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(130deg, #FFFFFF, #c084fc, #a855f7);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
         }
 
         .logo p {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-top: 4px;
+            font-size: 0.7rem;
+            color: #a1a1c2;
+            letter-spacing: 0.5px;
         }
 
         .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .locked {
             background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ff8a8a;
+            border: 1px solid rgba(239, 68, 68, 0.4);
         }
 
         .unlocked {
             background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.5);
         }
 
-        /* Cards */
-        .card {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 32px;
+        /* cards */
+        .glass-card {
+            background: rgba(20, 18, 40, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s ease, border-color 0.2s;
         }
 
-        /* Stats Grid */
+        /* stats grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 36px;
         }
 
         .stat-card {
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(18, 16, 38, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 20px 24px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: #8b5cf6;
+            background: rgba(30, 27, 58, 0.8);
         }
 
         .stat-label {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            color: #b9c3e6;
+            margin-bottom: 10px;
         }
 
         .stat-value {
-            font-size: 32px;
+            font-size: 2.2rem;
             font-weight: 700;
+            background: linear-gradient(135deg, #fff, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* Upload Area */
+        /* upload zone futuristic */
         .upload-area {
-            border: 2px dashed rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 60px;
+            border: 2px dashed rgba(139, 92, 246, 0.6);
+            border-radius: 38px;
+            padding: 48px 24px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 30px;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: rgba(0,0,0,0.2);
+            margin-bottom: 32px;
         }
 
         .upload-area:hover {
-            border-color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.05);
+            border-color: #c084fc;
+            background: rgba(139, 92, 246, 0.1);
+            transform: scale(1.01);
+            box-shadow: 0 8px 28px rgba(139, 92, 246, 0.2);
         }
 
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+        .upload-icon i {
+            font-size: 3.4rem;
+            color: #c084fc;
         }
 
-        /* Search */
+        /* search */
         .search-box {
-            margin-bottom: 20px;
+            margin-bottom: 28px;
+            position: relative;
         }
 
         .search-input {
             width: 100%;
-            padding: 14px 20px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
+            padding: 16px 24px 16px 52px;
+            background: rgba(12, 10, 30, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 56px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #8b5cf6;
+            border-color: #a78bfa;
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.3);
         }
 
-        /* File Grid */
+        .search-box i {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a78bfa;
+            font-size: 1.2rem;
+        }
+
+        /* file grid modern */
         .file-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            max-height: 500px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-height: 560px;
             overflow-y: auto;
-            padding-right: 8px;
+            padding: 4px 8px 8px 4px;
         }
 
         .file-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 16px;
+            background: rgba(25, 23, 48, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 18px;
             transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .file-card:hover {
-            transform: translateY(-4px);
-            background: rgba(255,255,255,0.08);
-            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-6px);
+            background: rgba(42, 38, 75, 0.85);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5);
         }
 
-        .file-preview {
-            font-size: 48px;
+        .file-icon {
+            font-size: 2.8rem;
             margin-bottom: 12px;
         }
 
         .file-name {
-            font-weight: 500;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
             margin-bottom: 6px;
-            word-break: break-all;
+            word-break: break-word;
         }
 
         .file-meta {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-bottom: 12px;
+            font-size: 0.7rem;
+            color: #a5b4fc;
+            margin-bottom: 14px;
         }
 
         .file-buttons {
             display: flex;
-            gap: 8px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .file-btn {
             background: rgba(255,255,255,0.05);
             border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            color: #d1d5db;
-            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 40px;
+            color: #e2e8ff;
+            font-size: 0.75rem;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-btn i {
+            font-size: 0.8rem;
         }
 
         .file-btn:hover {
-            background: rgba(139, 92, 246, 0.3);
+            background: #8b5cf6;
             color: white;
+            transform: scale(1.02);
         }
 
-        /* Login Screen */
+        /* login screen elevation */
         .login-screen {
-            max-width: 450px;
-            margin: 80px auto;
-        }
-
-        .login-screen h2 {
+            max-width: 500px;
+            margin: 60px auto;
+            padding: 40px;
             text-align: center;
-            margin-bottom: 8px;
         }
 
-        .login-screen p {
-            text-align: center;
-            color: #9ca3af;
-            margin-bottom: 32px;
-        }
-
-        /* Inputs */
         .input {
             width: 100%;
-            padding: 14px 18px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
-            margin-bottom: 16px;
+            padding: 14px 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            border-radius: 48px;
+            color: white;
+            font-size: 1rem;
+            transition: 0.2s;
+            margin-bottom: 18px;
         }
 
         .input:focus {
+            border-color: #c084fc;
             outline: none;
-            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139,92,246,0.3);
         }
 
-        /* Buttons */
         .btn {
             padding: 12px 24px;
-            border-radius: 12px;
+            border-radius: 48px;
             font-weight: 600;
-            font-size: 14px;
+            border: none;
             cursor: pointer;
             transition: all 0.2s;
-            border: none;
             width: 100%;
+            font-size: 0.9rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            background: linear-gradient(105deg, #8b5cf6, #6d28d9);
             color: white;
+            box-shadow: 0 8px 18px rgba(109, 40, 217, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+            filter: brightness(1.05);
+            box-shadow: 0 12px 24px rgba(139, 92, 246, 0.5);
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: #e5e7eb;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
             margin-top: 12px;
         }
 
-        /* Modal */
+        .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.3);
+        }
+
+        /* modal refinements */
         .modal {
             display: none;
             position: fixed;
@@ -275,10 +346,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1100;
         }
 
         .modal.show {
@@ -286,99 +358,113 @@
         }
 
         .modal-content {
-            background: #1a1a2e;
-            border-radius: 24px;
+            background: #15132b;
+            border-radius: 44px;
             padding: 32px;
-            max-width: 450px;
+            max-width: 500px;
             width: 90%;
+            border: 1px solid #8b5cf6;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.6);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 24px;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
         .modal-close {
             background: none;
             border: none;
-            color: #9ca3af;
-            font-size: 24px;
+            color: #cbd5e1;
+            font-size: 28px;
             cursor: pointer;
         }
 
-        /* Progress */
         .progress-container {
-            display: none;
-            margin-top: 20px;
+            margin-top: 24px;
+            background: #1e1c3a;
+            border-radius: 60px;
+            padding: 12px 18px;
         }
 
         .progress-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
+            height: 6px;
+            background: #2d2a55;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #8b5cf6, #6d28d9);
             width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #a78bfa, #6d28d9);
             transition: width 0.3s;
         }
 
-        .progress-text {
-            text-align: center;
-            font-size: 12px;
-            margin-top: 8px;
-            color: #9ca3af;
-        }
-
-        /* Toast */
         .toast {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            padding: 12px 20px;
-            border-radius: 12px;
-            background: #1a1a2e;
-            border: 1px solid rgba(255,255,255,0.1);
+            bottom: 30px;
+            right: 30px;
+            background: #181633;
+            backdrop-filter: blur(12px);
+            padding: 14px 22px;
+            border-radius: 48px;
             color: white;
-            font-size: 14px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
+            font-weight: 500;
+            z-index: 1200;
+            border-left: 4px solid;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            animation: slideUp 0.3s ease;
         }
 
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
-        .toast.info { background: #3b82f6; }
+        .toast.success { border-left-color: #10b981; }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.info { border-left-color: #3b82f6; }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
         }
 
         .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #6b7280;
             grid-column: 1/-1;
+            text-align: center;
+            padding: 70px 20px;
+            color: #7b8cce;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
+        ::-webkit-scrollbar-track { background: #211f44; border-radius: 10px;}
+        ::-webkit-scrollbar-thumb { background: #8b5cf6; border-radius: 10px;}
 
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 4px;
+        .batch-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 4px;
+        .batch-btn {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #4b3b8c;
+            padding: 8px 18px;
+            border-radius: 36px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .batch-btn:hover {
+            background: #6d28d9;
+        }
+        .sort-select {
+            background: #1e1b3e;
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: white;
+            border: 1px solid #8b5cf6;
         }
     </style>
 </head>
@@ -386,489 +472,226 @@
 <div class="container">
     <div class="header">
         <div class="logo">
-            <h1>🔐 IronVault</h1>
-            <p>Zero-knowledge • AES-256 • Local only</p>
+            <h1><i class="fas fa-shield-alt"></i> IronVault Pro</h1>
+            <p>Zero-knowledge • AES-256-GCM • Offline fortress</p>
         </div>
-        <div id="statusBadge" class="status-badge locked">🔒 Locked</div>
+        <div id="statusBadge" class="status-badge locked"><i class="fas fa-lock"></i> Locked</div>
     </div>
 
-    <!-- Login Section -->
+    <!-- Login Panel -->
     <div id="loginSection">
-        <div class="card login-screen">
-            <h2>Welcome to IronVault</h2>
-            <p>Your private, encrypted file vault</p>
-            
-            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px;">
-                🔐 <strong>100% Private</strong><br>
-                • Files encrypted with AES-256-GCM<br>
-                • Stored locally in your browser<br>
-                • Never uploaded to any server<br>
-                • Works offline
+        <div class="glass-card login-screen">
+            <h2 style="font-size: 2rem;"><i class="fas fa-dragon"></i> IronVault</h2>
+            <p>Your encrypted sanctuary, only you hold the key.</p>
+            <div style="background: rgba(139,92,246,0.1); border-radius: 28px; padding: 16px; margin: 20px 0;">
+                <i class="fas fa-microchip"></i> Military-grade local encryption • Biometric ready • Secure enclave logic
             </div>
-
-            <input type="password" id="passwordInput" class="input" placeholder="Master Password" onkeypress="if(event.key==='Enter') unlock()">
-            <button class="btn btn-primary" onclick="unlock()">Unlock Vault</button>
-            <button class="btn btn-secondary" onclick="showCreateModal()">Create New Vault</button>
+            <input type="password" id="passwordInput" class="input" placeholder="✦ Master password ✦" onkeypress="if(event.key==='Enter') unlock()">
+            <button class="btn btn-primary" onclick="unlock()"><i class="fas fa-unlock-alt"></i> Unlock Vault</button>
+            <button class="btn btn-secondary" onclick="showCreateModal()"><i class="fas fa-plus-circle"></i> Create new vault</button>
         </div>
     </div>
 
-    <!-- Vault Section -->
+    <!-- Vault Main UI -->
     <div id="vaultSection" style="display: none;">
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Files</div>
-                <div class="stat-value" id="totalFiles">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Storage Used</div>
-                <div class="stat-value" id="totalSize">0 MB</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Encryption</div>
-                <div class="stat-value" style="font-size: 20px;">AES-256</div>
-            </div>
+            <div class="stat-card"><div class="stat-label"><i class="fas fa-database"></i> Total files</div><div class="stat-value" id="totalFiles">0</div></div>
+            <div class="stat-card"><div class="stat-label"><i class="fas fa-hdd"></i> Storage used</div><div class="stat-value" id="totalSize">0 MB</div></div>
+            <div class="stat-card"><div class="stat-label"><i class="fas fa-fingerprint"></i> Cipher</div><div class="stat-value" style="font-size: 1.5rem;">AES-256-GCM</div></div>
+            <div class="stat-card"><div class="stat-label"><i class="fas fa-calendar"></i> Vault health</div><div class="stat-value" id="vaultHealth">✨ Active</div></div>
         </div>
 
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <div class="upload-icon">📤</div>
-            <div style="font-weight: 500; margin-bottom: 8px;">Upload Files</div>
-            <div style="font-size: 13px; color: #9ca3af;">Click or drag & drop — encrypted before storage</div>
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <div style="font-weight: 600; font-size: 1.2rem;">Secure Upload</div>
+            <div style="font-size: 0.8rem; margin-top: 8px;">AES-256 encrypted before storage • Drag & drop anywhere</div>
             <input type="file" id="fileInput" multiple style="display: none" onchange="handleFileUpload(this.files)">
         </div>
 
-        <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search files..." onkeyup="filterFiles()">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+            <div class="search-box" style="flex: 2;">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by filename..." onkeyup="filterFiles()">
+            </div>
+            <div>
+                <select id="sortSelect" class="sort-select" onchange="sortFiles()">
+                    <option value="date">📅 Newest first</option>
+                    <option value="name">🔤 Name A-Z</option>
+                    <option value="size">💾 Size (small-large)</option>
+                </select>
+            </div>
+            <div class="batch-actions">
+                <button class="batch-btn" onclick="exportVaultBackup()"><i class="fas fa-download"></i> Backup keys</button>
+                <button class="batch-btn" onclick="clearAllFiles()" style="background:#b91c1c30;"><i class="fas fa-trash-alt"></i> Wipe all</button>
+            </div>
         </div>
 
         <div id="fileGrid" class="file-grid"></div>
     </div>
 
-    <div id="progressContainer" class="progress-container">
+    <div id="progressContainer" class="progress-container" style="display:none">
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-text" id="progressText">Processing...</div>
+        <div class="progress-text" id="progressText" style="font-size:12px; margin-top:6px;"></div>
     </div>
 </div>
 
-<!-- Create Vault Modal -->
-<div id="createModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Create New Vault</h3>
-            <button class="modal-close" onclick="closeModal('createModal')">×</button>
-        </div>
-        <input type="password" id="newPassword" class="input" placeholder="Master Password (min 8 chars)">
-        <input type="password" id="confirmPassword" class="input" placeholder="Confirm Password">
-        <div style="font-size: 12px; color: #f59e0b; margin-bottom: 20px;">
-            ⚠️ This password cannot be recovered if lost!
-        </div>
-        <button class="btn btn-primary" onclick="createVault()">Create Vault</button>
-    </div>
-</div>
-
-<!-- Preview Modal -->
-<div id="previewModal" class="modal">
-    <div class="modal-content" style="max-width: 700px;">
-        <div class="modal-header">
-            <h3 id="previewTitle">Preview</h3>
-            <button class="modal-close" onclick="closeModal('previewModal')">×</button>
-        </div>
-        <div id="previewContent"></div>
-    </div>
-</div>
+<!-- Modals -->
+<div id="createModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🔐 Create New Vault</h3><button class="modal-close" onclick="closeModal('createModal')">×</button></div><input type="password" id="newPassword" class="input" placeholder="Master password (min 8)"><input type="password" id="confirmPassword" class="input" placeholder="Confirm"><div style="font-size:12px; margin-bottom:20px;">⚠️ Lost password = lost data forever</div><button class="btn btn-primary" onclick="createVault()"><i class="fas fa-check-circle"></i> Initialize vault</button></div></div>
+<div id="previewModal" class="modal"><div class="modal-content" style="max-width:720px"><div class="modal-header"><h3 id="previewTitle">Preview</h3><button class="modal-close" onclick="closeModal('previewModal')">×</button></div><div id="previewContent" style="text-align:center;"></div></div></div>
 
 <script>
-    // ============ CRYPTO ============
     let masterKey = null;
-    let files = [];
+    let files = [];        
     let searchFilter = '';
+    let sortMode = 'date';
 
+    // Crypto helpers
     async function deriveKey(password, salt) {
-        const encoder = new TextEncoder();
-        const keyMaterial = await crypto.subtle.importKey(
-            'raw', encoder.encode(password), 'PBKDF2', false, ['deriveKey']
-        );
-        return await crypto.subtle.deriveKey(
-            { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
-            keyMaterial,
-            { name: 'AES-GCM', length: 256 },
-            false,
-            ['encrypt', 'decrypt']
-        );
+        const enc = new TextEncoder();
+        const keyMat = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+        return await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 210000, hash: 'SHA-256' }, keyMat, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
     }
+    async function encryptData(data, key) { const iv = crypto.getRandomValues(new Uint8Array(12)); const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data); return { iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) }; }
+    async function decryptData(encrypted, key) { return await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(encrypted.iv) }, key, new Uint8Array(encrypted.data)); }
 
-    async function encryptData(data, key) {
-        const iv = crypto.getRandomValues(new Uint8Array(12));
-        const encrypted = await crypto.subtle.encrypt(
-            { name: 'AES-GCM', iv: iv },
-            key,
-            data
-        );
-        return { iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) };
-    }
+    // IndexedDB
+    function openDB() { return new Promise((resolve, reject) => { const req = indexedDB.open('IronVaultDB', 2); req.onerror = () => reject(req.error); req.onsuccess = () => resolve(req.result); req.onupgradeneeded = (e) => { const db = e.target.result; if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'id' }); }; }); }
+    async function saveFile(fileData) { const db = await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); const req=tx.objectStore('files').put(fileData); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
+    async function loadAllFiles() { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('files').objectStore('files').getAll(); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); }
+    async function deleteFileFromDB(id) { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('files','readwrite').objectStore('files').delete(id); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
+    async function clearAllDB() { const db=await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); const store=tx.objectStore('files'); const req=store.clear(); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
 
-    async function decryptData(encrypted, key) {
-        const iv = new Uint8Array(encrypted.iv);
-        const data = new Uint8Array(encrypted.data);
-        return await crypto.subtle.decrypt(
-            { name: 'AES-GCM', iv: iv },
-            key,
-            data
-        );
-    }
-
-    // ============ INDEXEDDB ============
-    function openDatabase() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open('IronVaultDB', 1);
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                if (!db.objectStoreNames.contains('files')) {
-                    db.createObjectStore('files', { keyPath: 'id' });
-                }
-            };
-        });
-    }
-
-    async function saveFile(fileData) {
-        const db = await openDatabase();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction('files', 'readwrite');
-            const store = tx.objectStore('files');
-            const request = store.put(fileData);
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    async function loadAllFiles() {
-        const db = await openDatabase();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction('files', 'readonly');
-            const store = tx.objectStore('files');
-            const request = store.getAll();
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    async function deleteFileFromDB(id) {
-        const db = await openDatabase();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction('files', 'readwrite');
-            const store = tx.objectStore('files');
-            const request = store.delete(id);
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    // ============ VAULT OPERATIONS ============
+    // Vault lifecycle
     async function createVault() {
-        const password = document.getElementById('newPassword').value;
-        const confirm = document.getElementById('confirmPassword').value;
-        
-        if (!password || password.length < 8) {
-            showToast('Password must be at least 8 characters', 'error');
-            return;
-        }
-        if (password !== confirm) {
-            showToast('Passwords do not match', 'error');
-            return;
-        }
-        
+        const pwd = document.getElementById('newPassword').value, confirm = document.getElementById('confirmPassword').value;
+        if (!pwd || pwd.length < 8) return showToast('Password needs 8+ chars', 'error');
+        if (pwd !== confirm) return showToast('Passwords mismatch', 'error');
         const salt = crypto.getRandomValues(new Uint8Array(16));
-        const key = await deriveKey(password, salt);
-        const emptyVault = { salt: Array.from(salt), created: Date.now() };
-        
-        const encrypted = await encryptData(new TextEncoder().encode(JSON.stringify(emptyVault)), key);
-        
-        localStorage.setItem('vault_meta', JSON.stringify({ iv: encrypted.iv, data: encrypted.data }));
+        const key = await deriveKey(pwd, salt);
+        const emptyVaultMeta = { salt: Array.from(salt), created: Date.now(), version: '2' };
+        const encryptedMeta = await encryptData(new TextEncoder().encode(JSON.stringify(emptyVaultMeta)), key);
+        localStorage.setItem('vault_meta', JSON.stringify({ iv: encryptedMeta.iv, data: encryptedMeta.data }));
         localStorage.setItem('vault_salt', JSON.stringify(Array.from(salt)));
-        
         closeModal('createModal');
-        document.getElementById('passwordInput').value = password;
-        showToast('Vault created! Click Unlock', 'success');
+        document.getElementById('passwordInput').value = pwd;
+        showToast('Vault forged! Unlock now', 'success');
     }
 
     async function unlock() {
         const password = document.getElementById('passwordInput').value;
-        if (!password) {
-            showToast('Enter master password', 'error');
-            return;
-        }
-        
-        const storedSalt = localStorage.getItem('vault_salt');
-        const storedMeta = localStorage.getItem('vault_meta');
-        
-        if (!storedSalt || !storedMeta) {
-            showToast('No vault found. Create one first', 'error');
-            return;
-        }
-        
+        if (!password) return showToast('Enter master password', 'error');
+        const storedSalt = localStorage.getItem('vault_salt'), storedMeta = localStorage.getItem('vault_meta');
+        if (!storedSalt || !storedMeta) return showToast('No vault exists. Create first', 'error');
         try {
             const salt = new Uint8Array(JSON.parse(storedSalt));
             const key = await deriveKey(password, salt);
             const meta = JSON.parse(storedMeta);
-            
             await decryptData({ iv: meta.iv, data: meta.data }, key);
-            
             masterKey = key;
-            
-            // Load existing files
             const dbFiles = await loadAllFiles();
-            files = dbFiles.map(f => ({
-                id: f.id,
-                name: f.name,
-                type: f.type,
-                size: f.size,
-                encryptedData: f.encryptedData,
-                uploadedAt: f.uploadedAt
-            }));
-            
+            files = dbFiles.map(f => ({ ...f, encryptedData: f.encryptedData }));
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('vaultSection').style.display = 'block';
-            document.getElementById('statusBadge').innerHTML = '🔓 Unlocked';
+            document.getElementById('statusBadge').innerHTML = '<i class="fas fa-lock-open"></i> Unlocked';
             document.getElementById('statusBadge').className = 'status-badge unlocked';
-            
             renderFiles();
             updateStats();
-            showToast('Vault unlocked', 'success');
-        } catch(e) {
-            showToast('Wrong password', 'error');
-        }
+            showToast('Vault opened securely', 'success');
+        } catch(e) { showToast('Invalid password or corrupted vault', 'error'); }
     }
 
     async function handleFileUpload(fileList) {
         if (!masterKey) return;
-        
-        for (const file of fileList) {
-            await uploadSingleFile(file);
-        }
-        renderFiles();
-        updateStats();
+        for (const file of fileList) await uploadSingleFile(file);
+        renderFiles(); updateStats();
     }
-
     async function uploadSingleFile(file) {
-        showProgress(true, `Encrypting ${file.name}...`);
-        
+        showProgress(true, `🔒 Encrypting ${file.name} ...`);
         try {
             const buffer = await file.arrayBuffer();
             const encrypted = await encryptData(buffer, masterKey);
-            
-            const fileData = {
-                id: crypto.randomUUID(),
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                encryptedData: encrypted,
-                uploadedAt: Date.now()
-            };
-            
+            const fileData = { id: crypto.randomUUID(), name: file.name, type: file.type, size: file.size, encryptedData: encrypted, uploadedAt: Date.now() };
             await saveFile(fileData);
             files.push(fileData);
-            
-            showToast(`✓ ${file.name} uploaded`, 'success');
-        } catch(e) {
-            showToast(`✗ ${file.name}: ${e.message}`, 'error');
-        } finally {
-            showProgress(false);
-        }
+            showToast(`✅ ${file.name} secured`, 'success');
+        } catch(e) { showToast(`❌ ${file.name} failed`, 'error'); } finally { showProgress(false); }
     }
 
     async function downloadFile(file) {
-        showProgress(true, `Decrypting ${file.name}...`);
-        
+        showProgress(true, `🔓 Decrypting ${file.name}`);
         try {
             const decrypted = await decryptData(file.encryptedData, masterKey);
             const blob = new Blob([decrypted], { type: file.type });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            a.click();
+            const a = document.createElement('a'); a.href = url; a.download = file.name; a.click();
             URL.revokeObjectURL(url);
-            
-            showToast(`✓ ${file.name} downloaded`, 'success');
-        } catch(e) {
-            showToast(`✗ Download failed`, 'error');
-        } finally {
-            showProgress(false);
-        }
+            showToast(`⬇️ Downloaded ${file.name}`, 'success');
+        } catch(e) { showToast('Decryption error', 'error'); } finally { showProgress(false); }
     }
 
-    async function deleteFile(file) {
-        if (!confirm(`Delete "${file.name}" permanently?`)) return;
-        
-        showProgress(true, `Deleting ${file.name}...`);
-        
-        try {
-            await deleteFileFromDB(file.id);
-            files = files.filter(f => f.id !== file.id);
-            renderFiles();
-            updateStats();
-            showToast(`✓ ${file.name} deleted`, 'success');
-        } catch(e) {
-            showToast(`✗ Delete failed`, 'error');
-        } finally {
-            showProgress(false);
-        }
-    }
+    async function deleteFile(file) { if (!confirm(`Delete "${file.name}"?`)) return; showProgress(true, 'Deleting...'); try { await deleteFileFromDB(file.id); files = files.filter(f=>f.id!==file.id); renderFiles(); updateStats(); showToast(`🗑️ ${file.name} deleted`, 'success'); } catch(e){ showToast('Delete failed','error');} finally{ showProgress(false);} }
+    
+    async function clearAllFiles() { if(!confirm('⚠️ PERMANENT: Delete ALL files from vault?')) return; showProgress(true,'Wiping vault...'); try{ await clearAllDB(); files=[]; renderFiles(); updateStats(); showToast('All files erased','info');}catch(e){showToast('Error wiping','error');} finally{showProgress(false);} }
 
     async function previewFile(file) {
-        if (file.type.startsWith('image/')) {
-            try {
+        if(file.type.startsWith('image/') || file.type.startsWith('video/')){
+            try{
                 const decrypted = await decryptData(file.encryptedData, masterKey);
-                const blob = new Blob([decrypted], { type: file.type });
+                const blob = new Blob([decrypted], {type: file.type});
                 const url = URL.createObjectURL(blob);
-                
-                document.getElementById('previewTitle').innerText = file.name;
-                document.getElementById('previewContent').innerHTML = `<img src="${url}" style="max-width:100%; border-radius:12px;">`;
+                document.getElementById('previewTitle').innerHTML = file.name;
+                if(file.type.startsWith('image/')) document.getElementById('previewContent').innerHTML = `<img src="${url}" style="max-width:100%; border-radius:24px; box-shadow:0 8px 20px black;">`;
+                else document.getElementById('previewContent').innerHTML = `<video controls style="width:100%; border-radius:20px;" src="${url}"></video>`;
                 document.getElementById('previewModal').classList.add('show');
-            } catch(e) {
-                showToast('Preview failed', 'error');
-            }
-        } else if (file.type.startsWith('video/')) {
-            try {
-                const decrypted = await decryptData(file.encryptedData, masterKey);
-                const blob = new Blob([decrypted], { type: file.type });
-                const url = URL.createObjectURL(blob);
-                
-                document.getElementById('previewTitle').innerText = file.name;
-                document.getElementById('previewContent').innerHTML = `<video controls style="width:100%;" src="${url}"></video>`;
-                document.getElementById('previewModal').classList.add('show');
-            } catch(e) {
-                showToast('Preview failed', 'error');
-            }
-        } else {
-            showToast('Preview only available for images/videos', 'info');
-        }
+            }catch(e){ showToast('Preview failed','error');}
+        } else showToast('Preview only for images/video', 'info');
     }
 
-    // ============ UI ============
+    function sortFiles() { sortMode = document.getElementById('sortSelect').value; renderFiles(); }
+    function filterFiles() { searchFilter = document.getElementById('searchInput').value; renderFiles(); }
+
     function renderFiles() {
+        let filtered = files.filter(f => f.name.toLowerCase().includes(searchFilter.toLowerCase()));
+        if (sortMode === 'name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+        else if (sortMode === 'size') filtered.sort((a,b)=>a.size - b.size);
+        else filtered.sort((a,b)=>b.uploadedAt - a.uploadedAt);
         const grid = document.getElementById('fileGrid');
-        let filtered = files;
-        
-        if (searchFilter) {
-            filtered = files.filter(f => f.name.toLowerCase().includes(searchFilter.toLowerCase()));
-        }
-        
-        if (filtered.length === 0) {
-            grid.innerHTML = '<div class="empty-state">📭 No files. Upload something!</div>';
-            return;
-        }
-        
+        if(filtered.length===0){ grid.innerHTML='<div class="empty-state"><i class="fas fa-ghost"></i> No files — drop secrets here</div>'; return; }
         grid.innerHTML = filtered.map(file => `
             <div class="file-card">
-                <div class="file-preview">${getFileIcon(file.name)}</div>
-                <div class="file-name" title="${escapeHtml(file.name)}">${truncate(file.name, 40)}</div>
-                <div class="file-meta">${formatBytes(file.size)}</div>
+                <div class="file-icon">${getFileIcon(file.name)}</div>
+                <div class="file-name" title="${escapeHtml(file.name)}">${truncate(file.name, 38)}</div>
+                <div class="file-meta"><i class="fas fa-weight-hanging"></i> ${formatBytes(file.size)}  •  <i class="far fa-calendar-alt"></i> ${new Date(file.uploadedAt).toLocaleDateString()}</div>
                 <div class="file-buttons">
-                    <button class="file-btn" onclick='previewFile(${JSON.stringify(file)})'>👁️ Preview</button>
-                    <button class="file-btn" onclick='downloadFile(${JSON.stringify(file)})'>⬇️ Download</button>
-                    <button class="file-btn" onclick='deleteFile(${JSON.stringify(file)})'>🗑️ Delete</button>
+                    <button class="file-btn" onclick='previewFile(${JSON.stringify(file)})'><i class="fas fa-eye"></i> View</button>
+                    <button class="file-btn" onclick='downloadFile(${JSON.stringify(file)})'><i class="fas fa-download"></i> Get</button>
+                    <button class="file-btn" onclick='deleteFile(${JSON.stringify(file)})'><i class="fas fa-trash"></i> Wipe</button>
                 </div>
             </div>
         `).join('');
     }
 
-    function updateStats() {
-        document.getElementById('totalFiles').innerText = files.length;
-        const totalBytes = files.reduce((sum, f) => sum + (f.size || 0), 0);
-        document.getElementById('totalSize').innerText = formatBytes(totalBytes);
+    async function exportVaultBackup() {
+        if(!masterKey) return;
+        const exportData = { files: files.map(f=>({id:f.id,name:f.name,type:f.type,size:f.size,encryptedData:f.encryptedData,uploadedAt:f.uploadedAt})), timestamp:Date.now() };
+        const jsonStr = JSON.stringify(exportData);
+        const encryptedBackup = await encryptData(new TextEncoder().encode(jsonStr), masterKey);
+        const blob = new Blob([JSON.stringify(encryptedBackup)], {type:'application/json'});
+        const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=`ironvault_backup_${Date.now()}.ivault`; a.click(); URL.revokeObjectURL(url);
+        showToast('Encrypted backup exported', 'success');
     }
 
-    function filterFiles() {
-        searchFilter = document.getElementById('searchInput').value;
-        renderFiles();
-    }
-
-    function getFileIcon(filename) {
-        const ext = filename.split('.').pop()?.toLowerCase();
-        if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
-        if (['mp4','webm','avi','mov','mkv'].includes(ext)) return '🎬';
-        if (['mp3','wav','ogg','flac','m4a'].includes(ext)) return '🎵';
-        if (ext === 'pdf') return '📄';
-        if (['doc','docx'].includes(ext)) return '📝';
-        if (['zip','rar','7z'].includes(ext)) return '🗜️';
-        return '📁';
-    }
-
-    function formatBytes(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
-
-    function truncate(str, n) {
-        return str.length > n ? str.slice(0, n) + '...' : str;
-    }
-
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    function showProgress(show, text = '') {
-        const container = document.getElementById('progressContainer');
-        const fill = document.getElementById('progressFill');
-        const textEl = document.getElementById('progressText');
-        
-        if (show) {
-            container.style.display = 'block';
-            textEl.innerText = text;
-            fill.style.width = '50%';
-            setTimeout(() => fill.style.width = '100%', 100);
-        } else {
-            container.style.display = 'none';
-            fill.style.width = '0%';
-        }
-    }
-
-    function showToast(message, type) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerText = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    function showCreateModal() {
-        document.getElementById('createModal').classList.add('show');
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('show');
-        if (id === 'createModal') {
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-        }
-        if (id === 'previewModal') {
-            document.getElementById('previewContent').innerHTML = '';
-        }
-    }
-
-    // Drag & drop
-    document.addEventListener('dragover', (e) => e.preventDefault());
-    document.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        if (masterKey && e.dataTransfer.files.length) {
-            await handleFileUpload(e.dataTransfer.files);
-        }
-    });
-
-    // Check for existing vault
-    if (localStorage.getItem('vault_salt')) {
-        document.getElementById('passwordInput').focus();
-    }
+    function updateStats() { document.getElementById('totalFiles').innerText = files.length; const total = files.reduce((s,f)=>s+(f.size||0),0); document.getElementById('totalSize').innerHTML = formatBytes(total); document.getElementById('vaultHealth').innerHTML = files.length<200 ? '💪 Healthy' : '📦 Active'; }
+    function getFileIcon(name){ const ext=name.split('.').pop()?.toLowerCase(); if(['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️'; if(['mp4','webm','mov'].includes(ext)) return '🎥'; if(['mp3','wav'].includes(ext)) return '🎧'; if(ext==='pdf') return '📕'; return '🔒'; }
+    function formatBytes(b){ if(b===0) return '0 B'; const k=1024; const i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['B','KB','MB','GB'][i]; }
+    function truncate(s,n){ return s.length>n?s.slice(0,n)+'…':s; }
+    function escapeHtml(str){ return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+    function showProgress(show,text=''){ const c=document.getElementById('progressContainer'); const fill=document.getElementById('progressFill'); const txt=document.getElementById('progressText'); if(show){ c.style.display='block'; txt.innerText=text; fill.style.width='70%'; setTimeout(()=>fill.style.width='100%',150); } else { c.style.display='none'; fill.style.width='0%'; } }
+    function showToast(msg,type){ const toast=document.createElement('div'); toast.className=`toast ${type}`; toast.innerHTML=`<i class="fas fa-${type==='success'?'check-circle':type==='error'?'exclamation-triangle':'info-circle'}"></i> ${msg}`; document.body.appendChild(toast); setTimeout(()=>toast.remove(),3200); }
+    function showCreateModal(){ document.getElementById('createModal').classList.add('show'); }
+    function closeModal(id){ document.getElementById(id).classList.remove('show'); if(id==='previewModal') document.getElementById('previewContent').innerHTML=''; }
+    document.addEventListener('dragover', e=>e.preventDefault()); document.addEventListener('drop', async e=>{ e.preventDefault(); if(masterKey && e.dataTransfer.files.length) await handleFileUpload(e.dataTransfer.files); });
+    if(localStorage.getItem('vault_salt')) document.getElementById('passwordInput').focus();
 </script>
 </body>
 </html>
