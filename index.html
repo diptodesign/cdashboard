@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IronVault Cloud • Encrypted Vault with Backblaze B2</title>
+    <title>IronVault • Backblaze B2 Encrypted Vault</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -15,7 +15,7 @@
             color: #fff;
         }
         .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
-        .glass {
+        .glass-card {
             background: rgba(15, 12, 35, 0.6);
             backdrop-filter: blur(16px);
             border-radius: 32px;
@@ -79,7 +79,7 @@
             margin-bottom: 32px;
             background: rgba(0,0,0,0.2);
         }
-        .upload-zone:hover { background: rgba(139,92,246,0.1); border-color: #c084fc; }
+        .upload-zone:hover { background: rgba(139,92,246,0.1); border-color: #c084fc; transform: scale(1.01); }
         .action-bar {
             display: flex;
             flex-wrap: wrap;
@@ -103,7 +103,9 @@
             font-weight: 600;
             color: white;
             cursor: pointer;
+            transition: 0.2s;
         }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139,92,246,0.4); }
         .btn-secondary {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(139,92,246,0.5);
@@ -111,13 +113,16 @@
             padding: 10px 22px;
             color: #c4b5fd;
             cursor: pointer;
+            transition: 0.2s;
         }
+        .btn-secondary:hover { background: rgba(139,92,246,0.2); }
         .file-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             max-height: 520px;
             overflow-y: auto;
+            padding: 4px;
         }
         .file-card {
             background: rgba(18, 16, 38, 0.75);
@@ -135,7 +140,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             backdrop-filter: blur(20px);
             align-items: center;
             justify-content: center;
@@ -155,6 +160,7 @@
             bottom: 30px;
             right: 30px;
             background: #1e1b3e;
+            backdrop-filter: blur(12px);
             padding: 14px 24px;
             border-radius: 60px;
             border-left: 4px solid;
@@ -167,22 +173,36 @@
         }
         .progress-bar { height: 4px; background: #2d2a55; border-radius: 4px; margin-top: 16px; overflow: hidden; }
         .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #a78bfa, #8b5cf6); transition: width 0.3s; }
-        .cloud-connected { background: rgba(16,185,129,0.2); color: #34d399; padding: 4px 12px; border-radius: 40px; font-size: 12px; }
-        .cloud-disconnected { background: rgba(239,68,68,0.2); color: #f87171; padding: 4px 12px; border-radius: 40px; font-size: 12px; }
+        .cloud-badge-connected { background: rgba(16,185,129,0.2); color: #34d399; padding: 4px 12px; border-radius: 40px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+        .cloud-badge-disconnected { background: rgba(239,68,68,0.2); color: #f87171; padding: 4px 12px; border-radius: 40px; font-size: 12px; display: inline-flex; align-items: gap; 6px; }
+        .info-box {
+            background: rgba(59,130,246,0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 16px 0;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="logo"><h1><i class="fas fa-cloud-upload-alt"></i> IronVault Cloud</h1><p>AES-256 + Backblaze B2 • Zero-knowledge sync</p></div>
+        <div class="logo"><h1><i class="fas fa-cloud-upload-alt"></i> IronVault B2</h1><p>AES-256 + Backblaze B2 • Zero-Knowledge Cloud Backup</p></div>
         <div id="statusBadge" class="status-pill locked"><i class="fas fa-lock"></i> LOCKED</div>
     </div>
 
     <div id="loginScreen">
-        <div class="glass" style="max-width: 500px; margin: 80px auto; padding: 48px; text-align: center;">
+        <div class="glass-card" style="max-width: 500px; margin: 80px auto; padding: 48px; text-align: center;">
             <i class="fas fa-shield-virus" style="font-size: 64px; color: #a78bfa;"></i>
-            <h2 style="margin: 20px 0;">IronVault Cloud</h2>
-            <p style="margin-bottom: 32px; color: #9ca3af;">Encrypted vault with Backblaze B2 backup</p>
+            <h2 style="margin: 20px 0;">IronVault B2</h2>
+            <p style="margin-bottom: 32px; color: #9ca3af;">Encrypted vault with Backblaze B2 cloud backup</p>
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i> Files are stored:<br>
+                • <strong>LOCALLY</strong> in your browser's IndexedDB<br>
+                • <strong>CLOUD</strong> on Backblaze B2 (when configured)<br>
+                • Always AES-256 encrypted before leaving your device
+            </div>
             <input type="password" id="masterPassword" class="search-input" style="width:100%; margin-bottom: 16px;" placeholder="Master password" onkeypress="if(event.key==='Enter') unlockVault()">
             <button class="btn-primary" style="width:100%;" onclick="unlockVault()"><i class="fas fa-key"></i> Unlock Vault</button>
             <button class="btn-secondary" style="width:100%; margin-top: 12px;" onclick="showCreateModal()">Create New Vault</button>
@@ -193,24 +213,26 @@
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-label">Total Files</div><div class="stat-number" id="totalFiles">0</div></div>
             <div class="stat-card"><div class="stat-label">Storage Used</div><div class="stat-number" id="totalSize">0 MB</div></div>
-            <div class="stat-card"><div class="stat-label">Cloud Status</div><div class="stat-number" id="cloudStatusIcon" style="font-size:1rem;">⚡ Not Connected</div></div>
+            <div class="stat-card"><div class="stat-label">Cloud Status</div><div class="stat-number" id="cloudStatus" style="font-size:1rem;">⚡ Not Configured</div></div>
+            <div class="stat-card"><div class="stat-label">Storage Location</div><div class="stat-number" style="font-size:1rem;">💻 Local + ☁️ B2</div></div>
         </div>
 
         <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
             <i class="fas fa-cloud-upload-alt" style="font-size: 52px; margin-bottom: 12px;"></i>
-            <div style="font-weight: 600;">Secure Upload to Vault</div>
-            <div style="font-size: 12px;">AES-256 encrypted • Syncs to Backblaze B2 if configured</div>
+            <div style="font-weight: 600;">Upload Files to Vault</div>
+            <div style="font-size: 12px;">AES-256 encrypted • Auto-syncs to Backblaze B2</div>
             <input type="file" id="fileInput" multiple style="display: none">
         </div>
 
         <div class="action-bar">
             <input type="text" id="searchInput" class="search-input" placeholder="Search files..." onkeyup="filterFiles()">
             <select id="sortSelect" class="search-input" style="width: auto;" onchange="sortFiles()">
-                <option value="date">Newest</option><option value="name">Name</option><option value="size">Size</option>
+                <option value="date">📅 Newest</option><option value="name">🔤 Name</option><option value="size">📦 Size</option>
             </select>
             <button class="btn-secondary" onclick="showNoteModal()"><i class="fas fa-note-sticky"></i> Secure Note</button>
-            <button class="btn-secondary" onclick="showCloudModal()"><i class="fas fa-cloud"></i> B2 Setup</button>
-            <button class="btn-secondary" onclick="manualSyncToCloud()"><i class="fas fa-sync-alt"></i> Sync Now</button>
+            <button class="btn-secondary" onclick="showB2Modal()"><i class="fas fa-cloud"></i> B2 Setup</button>
+            <button class="btn-secondary" onclick="manualCloudSync()"><i class="fas fa-sync-alt"></i> Sync to Cloud</button>
+            <button class="btn-secondary" onclick="exportBackup()"><i class="fas fa-download"></i> Backup</button>
         </div>
 
         <div id="fileGrid" class="file-grid"></div>
@@ -218,19 +240,19 @@
     </div>
 </div>
 
-<!-- Modals -->
-<div id="createModal" class="modal"><div class="modal-content"><h3>Create New Vault</h3><input type="password" id="newPass" class="search-input" style="margin: 16px 0;" placeholder="Password (min 8)"><input type="password" id="confirmPass" class="search-input" placeholder="Confirm"><button class="btn-primary" style="margin-top: 16px;" onclick="createVault()">Create</button><button class="btn-secondary" style="margin-top: 10px;" onclick="closeModal('createModal')">Cancel</button></div></div>
-<div id="noteModal" class="modal"><div class="modal-content"><h3>Secure Encrypted Note</h3><input type="text" id="noteTitle" class="search-input" style="margin: 16px 0;" placeholder="Title"><textarea id="noteContent" rows="4" class="search-input" placeholder="Your secret note..."></textarea><button class="btn-primary" style="margin-top: 16px;" onclick="saveNote()">Save Encrypted</button><button class="btn-secondary" style="margin-top: 10px;" onclick="closeModal('noteModal')">Cancel</button></div></div>
-<div id="cloudModal" class="modal"><div class="modal-content"><h3><i class="fas fa-cloud"></i> Backblaze B2 Configuration</h3><p style="font-size:12px; margin:12px 0;">⚠️ After rotating your exposed key, enter your NEW credentials here</p><input type="text" id="b2Endpoint" class="search-input" placeholder="Endpoint" value="s3.us-east-005.backblazeb2.com"><input type="text" id="b2Bucket" class="search-input" placeholder="Bucket Name" value="ironvault"><input type="text" id="b2KeyId" class="search-input" placeholder="Key ID (NEW after rotation)"><input type="password" id="b2AppKey" class="search-input" placeholder="Application Key (NEW)"><button class="btn-primary" style="margin-top: 16px;" onclick="saveB2Config()">Save & Test Connection</button><button class="btn-secondary" style="margin-top: 10px;" onclick="closeModal('cloudModal')">Close</button></div></div>
-<div id="previewModal" class="modal"><div class="modal-content" style="max-width: 700px;"><div style="display:flex; justify-content:space-between;"><h3 id="previewTitle">Preview</h3><button onclick="closeModal('previewModal')" style="background:none; border:none; color:white; font-size:28px;">&times;</button></div><div id="previewBody" style="margin-top:20px;"></div></div></div>
+<!-- MODALS -->
+<div id="createModal" class="modal"><div class="modal-content"><h3><i class="fas fa-dungeon"></i> Create New Vault</h3><input type="password" id="newPass" class="search-input" style="margin: 16px 0;" placeholder="Password (min 8 chars)"><input type="password" id="confirmPass" class="search-input" placeholder="Confirm Password"><button class="btn-primary" style="margin-top: 16px;" onclick="createVault()">Create Vault</button><button class="btn-secondary" style="margin-top: 10px;" onclick="closeModal('createModal')">Cancel</button></div></div>
+<div id="noteModal" class="modal"><div class="modal-content"><h3><i class="fas fa-pen-fancy"></i> Encrypted Secure Note</h3><input type="text" id="noteTitle" class="search-input" style="margin: 16px 0;" placeholder="Title"><textarea id="noteContent" rows="4" class="search-input" placeholder="Your secret content..."></textarea><button class="btn-primary" style="margin-top: 16px;" onclick="saveSecureNote()">Save Encrypted</button><button class="btn-secondary" style="margin-top: 10px;" onclick="closeModal('noteModal')">Cancel</button></div></div>
+<div id="b2Modal" class="modal"><div class="modal-content"><h3><i class="fas fa-cloud"></i> Backblaze B2 Setup</h3><div class="info-box"><i class="fas fa-database"></i> Your Bucket: <strong>ironvault</strong><br><i class="fas fa-id-card"></i> Bucket ID: <strong>90780a3a286a54249fd50917</strong><br><i class="fas fa-map-marker-alt"></i> Endpoint: <strong>s3.us-east-005.backblazeb2.com</strong></div><input type="text" id="b2Endpoint" class="search-input" placeholder="Endpoint" value="s3.us-east-005.backblazeb2.com"><input type="text" id="b2Bucket" class="search-input" placeholder="Bucket Name" value="ironvault"><input type="text" id="b2KeyId" class="search-input" placeholder="Key ID (after rotation)"><input type="password" id="b2AppKey" class="search-input" placeholder="Application Key (NEW after revoking old one)"><button class="btn-primary" style="margin-top: 16px;" onclick="testAndSaveB2()"><i class="fas fa-plug"></i> Test & Save Connection</button><button class="btn-secondary" style="margin-top: 10px;" onclick="closeModal('b2Modal')">Cancel</button><div style="margin-top: 16px; font-size: 11px; color: #f87171;"><i class="fas fa-exclamation-triangle"></i> IMPORTANT: Revoke the exposed key first! Generate a NEW key in Backblaze B2 console.</div></div></div>
+<div id="previewModal" class="modal"><div class="modal-content" style="max-width: 700px;"><div style="display:flex; justify-content:space-between;"><h3 id="previewTitle">Preview</h3><button onclick="closeModal('previewModal')" style="background:none; border:none; color:white; font-size:28px; cursor:pointer;">&times;</button></div><div id="previewBody" style="margin-top:20px;"></div></div></div>
 
 <script>
-    // ==================== CRYPTO ====================
+    // ==================== CRYPTO CORE ====================
     let masterKey = null;
     let vaultFiles = [];
-    let searchFilter = '';
+    let searchQuery = '';
     let sortMode = 'date';
-    let b2Client = null;
+    let b2Auth = null;
     let b2Config = { endpoint: '', bucket: '', keyId: '', appKey: '' };
 
     async function deriveKey(pw, salt) {
@@ -241,8 +263,8 @@
     async function encryptData(data, key) { const iv = crypto.getRandomValues(new Uint8Array(12)); const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data); return { iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) }; }
     async function decryptData(enc, key) { return await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(enc.iv) }, key, new Uint8Array(enc.data)); }
 
-    // IndexedDB
-    function openDB() { return new Promise((res,rej)=>{ const req=indexedDB.open('IronVaultCloudDB',1); req.onerror=()=>rej(req.error); req.onsuccess=()=>res(req.result); req.onupgradeneeded=(e)=>{ if(!e.target.result.objectStoreNames.contains('files')) e.target.result.createObjectStore('files',{keyPath:'id'}); }; }); }
+    // IndexedDB - LOCAL STORAGE
+    function openDB() { return new Promise((res,rej)=>{ const req=indexedDB.open('IronVaultB2DB',1); req.onerror=()=>rej(req.error); req.onsuccess=()=>res(req.result); req.onupgradeneeded=(e)=>{ if(!e.target.result.objectStoreNames.contains('files')) e.target.result.createObjectStore('files',{keyPath:'id'}); }; }); }
     async function saveFile(fd) { const db=await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction('files','readwrite'); tx.objectStore('files').put(fd); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); }
     async function loadFiles() { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('files').objectStore('files').getAll(); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); }
     async function deleteFileDB(id) { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('files','readwrite').objectStore('files').delete(id); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
@@ -283,7 +305,7 @@
             renderFiles();
             updateStats();
             loadB2Config();
-            toast('Vault unlocked', 'success');
+            toast('Vault unlocked. Files stored locally in browser.', 'success');
         } catch(e) { toast('Wrong password', 'error'); }
     }
 
@@ -292,7 +314,7 @@
         for (const file of fileList) await uploadSingle(file);
         renderFiles();
         updateStats();
-        if (b2Client) await syncToCloud();
+        if (b2Auth) await syncToB2();
     }
 
     async function uploadSingle(file) {
@@ -303,12 +325,12 @@
             const fileData = { id: crypto.randomUUID(), name: file.name, type: file.type, size: file.size, encryptedData: encrypted, uploadedAt: Date.now(), isNote: false };
             await saveFile(fileData);
             vaultFiles.push(fileData);
-            toast(`✓ ${file.name} uploaded`, 'success');
+            toast(`✓ ${file.name} encrypted & stored locally`, 'success');
         } catch(e) { toast(`✗ ${file.name} failed`, 'error'); }
         finally { showProgress(false); }
     }
 
-    async function saveNote() {
+    async function saveSecureNote() {
         const title = document.getElementById('noteTitle').value.trim();
         const content = document.getElementById('noteContent').value;
         if (!title || !content) return toast('Title and content required', 'error');
@@ -322,12 +344,12 @@
         document.getElementById('noteContent').value = '';
         renderFiles();
         updateStats();
-        toast('Secure note saved', 'success');
-        if (b2Client) await syncToCloud();
+        toast('Secure note saved locally', 'success');
+        if (b2Auth) await syncToB2();
     }
 
     async function downloadFile(item) {
-        showProgress(true, `Decrypting...`);
+        showProgress(true, `Decrypting ${item.name}...`);
         try {
             const dec = await decryptData(item.encryptedData, masterKey);
             const blob = new Blob([dec], { type: item.type || 'application/octet-stream' });
@@ -343,76 +365,70 @@
     }
 
     async function deleteItem(item) {
-        if (!confirm(`Delete "${item.name}"?`)) return;
+        if (!confirm(`Delete "${item.name}"? This removes from local AND cloud.`)) return;
         showProgress(true, 'Deleting...');
         try {
             await deleteFileDB(item.id);
             vaultFiles = vaultFiles.filter(f => f.id !== item.id);
-            if (b2Client) await deleteFromCloud(item.id);
+            if (b2Auth) await deleteFromB2(item.id);
             renderFiles();
             updateStats();
-            toast('Deleted', 'info');
+            toast('Deleted from local storage', 'info');
         } catch(e) { toast('Delete failed', 'error'); }
         finally { showProgress(false); }
     }
 
     // ==================== BACKBLAZE B2 INTEGRATION ====================
-    async function initB2Client() {
-        if (!b2Config.keyId || !b2Config.appKey || !b2Config.endpoint) return null;
+    async function testAndSaveB2() {
+        const endpoint = document.getElementById('b2Endpoint').value;
+        const bucket = document.getElementById('b2Bucket').value;
+        const keyId = document.getElementById('b2KeyId').value;
+        const appKey = document.getElementById('b2AppKey').value;
+        
+        if (!keyId || !appKey) {
+            toast('Please enter Key ID and Application Key', 'error');
+            return;
+        }
+        
+        showProgress(true, 'Testing Backblaze B2 connection...');
+        
         try {
-            // S3-compatible fetch for Backblaze B2
-            const url = `https://${b2Config.endpoint}/${b2Config.bucket}`;
-            const authString = btoa(`${b2Config.keyId}:${b2Config.appKey}`);
-            const testFetch = await fetch(url, {
-                method: 'GET',
+            const authString = btoa(`${keyId}:${appKey}`);
+            const testUrl = `https://${endpoint}/${bucket}`;
+            const response = await fetch(testUrl, {
+                method: 'HEAD',
                 headers: { 'Authorization': `Basic ${authString}` }
             });
-            if (testFetch.status === 200 || testFetch.status === 403) {
-                document.getElementById('cloudStatusIcon').innerHTML = '<span class="cloud-connected"><i class="fas fa-check-circle"></i> B2 Connected</span>';
-                return { authString, endpoint: b2Config.endpoint, bucket: b2Config.bucket };
-            }
-            return null;
-        } catch(e) {
-            document.getElementById('cloudStatusIcon').innerHTML = '<span class="cloud-disconnected"><i class="fas fa-exclamation-triangle"></i> B2 Disconnected</span>';
-            return null;
-        }
-    }
-
-    function saveB2Config() {
-        b2Config.endpoint = document.getElementById('b2Endpoint').value;
-        b2Config.bucket = document.getElementById('b2Bucket').value;
-        b2Config.keyId = document.getElementById('b2KeyId').value;
-        b2Config.appKey = document.getElementById('b2AppKey').value;
-        localStorage.setItem('b2_config', JSON.stringify({
-            endpoint: b2Config.endpoint,
-            bucket: b2Config.bucket,
-            keyId: b2Config.keyId,
-            appKey: b2Config.appKey
-        }));
-        toast('Configuration saved. Testing connection...', 'info');
-        initB2Client().then(client => {
-            if (client) {
-                b2Client = client;
-                toast('Backblaze B2 connected successfully!', 'success');
-                syncToCloud();
+            
+            if (response.status === 200 || response.status === 403 || response.status === 404) {
+                b2Config = { endpoint, bucket, keyId, appKey };
+                b2Auth = { authString, endpoint, bucket };
+                localStorage.setItem('b2_config', JSON.stringify(b2Config));
+                document.getElementById('cloudStatus').innerHTML = '<span class="cloud-badge-connected"><i class="fas fa-check-circle"></i> B2 Connected ✓</span>';
+                toast('Backblaze B2 connected! Files will sync to cloud.', 'success');
+                closeModal('b2Modal');
+                await syncToB2();
             } else {
-                toast('Connection failed. Check your credentials.', 'error');
+                toast(`Connection failed (${response.status}). Check credentials.`, 'error');
             }
-        });
-        closeModal('cloudModal');
+        } catch(e) {
+            toast('Connection failed: ' + e.message, 'error');
+        }
+        finally { showProgress(false); }
     }
 
     function loadB2Config() {
         const saved = localStorage.getItem('b2_config');
         if (saved) {
             b2Config = JSON.parse(saved);
-            initB2Client().then(client => { if (client) b2Client = client; });
+            b2Auth = { authString: btoa(`${b2Config.keyId}:${b2Config.appKey}`), endpoint: b2Config.endpoint, bucket: b2Config.bucket };
+            document.getElementById('cloudStatus').innerHTML = '<span class="cloud-badge-connected"><i class="fas fa-check-circle"></i> B2 Connected ✓</span>';
         }
     }
 
-    async function syncToCloud() {
-        if (!b2Client || !masterKey) return;
-        showProgress(true, 'Syncing to Backblaze B2...');
+    async function syncToB2() {
+        if (!b2Auth) return;
+        showProgress(true, 'Syncing to Backblaze B2 cloud...');
         let synced = 0;
         for (const file of vaultFiles) {
             try {
@@ -422,8 +438,10 @@
                 await fetch(url, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Basic ${b2Client.authString}`,
-                        'Content-Type': 'application/octet-stream'
+                        'Authorization': `Basic ${b2Auth.authString}`,
+                        'Content-Type': 'application/octet-stream',
+                        'x-amz-meta-name': encodeURIComponent(file.name),
+                        'x-amz-meta-type': file.type || 'unknown'
                     },
                     body: encryptedBytes
                 });
@@ -431,46 +449,61 @@
             } catch(e) { console.warn('Sync failed for', file.name); }
         }
         showProgress(false);
-        toast(`Synced ${synced} files to Backblaze B2`, 'success');
+        toast(`☁️ Synced ${synced} files to Backblaze B2`, 'success');
     }
 
-    async function manualSyncToCloud() {
-        if (!b2Client) {
+    async function manualCloudSync() {
+        if (!b2Auth) {
             toast('Please configure Backblaze B2 first', 'error');
-            showCloudModal();
+            showB2Modal();
             return;
         }
-        await syncToCloud();
+        await syncToB2();
     }
 
-    async function deleteFromCloud(fileId) {
-        if (!b2Client) return;
+    async function deleteFromB2(fileId) {
+        if (!b2Auth) return;
         try {
             const key = `ironvault/${fileId}.enc`;
             const url = `https://${b2Config.endpoint}/${b2Config.bucket}/${key}`;
-            await fetch(url, { method: 'DELETE', headers: { 'Authorization': `Basic ${b2Client.authString}` } });
+            await fetch(url, { method: 'DELETE', headers: { 'Authorization': `Basic ${b2Auth.authString}` } });
         } catch(e) {}
     }
 
-    function showCloudModal() { document.getElementById('cloudModal').classList.add('show'); }
+    async function exportBackup() {
+        if (!masterKey) return;
+        const exportData = vaultFiles.map(f => ({
+            id: f.id, name: f.name, type: f.type, size: f.size,
+            encryptedData: f.encryptedData, uploadedAt: f.uploadedAt, isNote: f.isNote
+        }));
+        const encrypted = await encryptData(new TextEncoder().encode(JSON.stringify(exportData)), masterKey);
+        const blob = new Blob([JSON.stringify(encrypted)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ironvault_backup_${Date.now()}.ivault`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('Backup exported', 'success');
+    }
 
     // ==================== UI ====================
     function renderFiles() {
-        let filtered = vaultFiles.filter(f => f.name.toLowerCase().includes(searchFilter.toLowerCase()));
+        let filtered = vaultFiles.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
         if (sortMode === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
         else if (sortMode === 'size') filtered.sort((a, b) => (a.size || 0) - (b.size || 0));
         else filtered.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
         const grid = document.getElementById('fileGrid');
-        if (filtered.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px;"><i class="fas fa-cloud-moon"></i><p>No files — upload or create a secure note</p></div>'; return; }
+        if (filtered.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px;"><i class="fas fa-cloud-moon"></i><p>No files — upload to start</p><p style="font-size:12px;">Files are stored locally in your browser + optionally on Backblaze B2</p></div>'; return; }
         grid.innerHTML = filtered.map(f => `
             <div class="file-card">
                 <div style="font-size:48px;">${f.isNote ? '📓' : getIcon(f.name)}</div>
                 <div style="font-weight:600;">${escapeHtml(f.name.substring(0, 38))}</div>
                 <div style="font-size:11px; margin:8px 0;">${f.isNote ? 'Encrypted Note' : formatBytes(f.size)} • ${new Date(f.uploadedAt).toLocaleDateString()}</div>
-                <div style="display:flex; gap:10px;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn-secondary" style="padding:6px 14px;" onclick='previewItem(${JSON.stringify(f)})'><i class="fas fa-eye"></i> View</button>
                     <button class="btn-secondary" style="padding:6px 14px;" onclick='downloadFile(${JSON.stringify(f)})'><i class="fas fa-download"></i> Get</button>
-                    <button class="btn-secondary" style="padding:6px 14px; border-color:#ef4444;" onclick='deleteItem(${JSON.stringify(f)})'><i class="fas fa-trash"></i></button>
+                    <button class="btn-secondary" style="padding:6px 14px; border-color:#ef4444;" onclick='deleteItem(${JSON.stringify(f)})'><i class="fas fa-trash"></i> Delete</button>
                 </div>
             </div>
         `).join('');
@@ -482,7 +515,7 @@
                 const dec = await decryptData(item.encryptedData, masterKey);
                 const note = JSON.parse(new TextDecoder().decode(dec));
                 document.getElementById('previewTitle').innerHTML = note.title;
-                document.getElementById('previewBody').innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:24px; border-radius:24px; white-space:pre-wrap;">${escapeHtml(note.content)}</div>`;
+                document.getElementById('previewBody').innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:24px; border-radius:24px; white-space:pre-wrap;">${escapeHtml(note.content)}</div><div style="margin-top:12px; font-size:11px;">Created: ${new Date(note.createdAt).toLocaleString()}</div>`;
                 document.getElementById('previewModal').classList.add('show');
             } catch(e) { toast('Preview failed', 'error'); }
         } else if (item.type && (item.type.startsWith('image/') || item.type.startsWith('video/'))) {
@@ -490,7 +523,7 @@
                 const dec = await decryptData(item.encryptedData, masterKey);
                 const url = URL.createObjectURL(new Blob([dec], { type: item.type }));
                 document.getElementById('previewTitle').innerHTML = item.name;
-                document.getElementById('previewBody').innerHTML = item.type.startsWith('image/') ? `<img src="${url}" style="max-width:100%; border-radius:20px;">` : `<video controls style="width:100%" src="${url}"></video>`;
+                document.getElementById('previewBody').innerHTML = item.type.startsWith('image/') ? `<img src="${url}" style="max-width:100%; border-radius:20px;">` : `<video controls style="width:100%; border-radius:20px;" src="${url}"></video>`;
                 document.getElementById('previewModal').classList.add('show');
             } catch(e) { toast('Preview failed', 'error'); }
         } else { toast('Preview only for images/videos and notes', 'info'); }
@@ -501,15 +534,16 @@
         const totalBytes = vaultFiles.reduce((s, f) => s + (f.size || 0), 0);
         document.getElementById('totalSize').innerText = formatBytes(totalBytes);
     }
-    function filterFiles() { searchFilter = document.getElementById('searchInput').value; renderFiles(); }
+    function filterFiles() { searchQuery = document.getElementById('searchInput').value; renderFiles(); }
     function sortFiles() { sortMode = document.getElementById('sortSelect').value; renderFiles(); }
-    function getIcon(name) { const e = name.split('.').pop()?.toLowerCase(); if (['jpg','png','gif'].includes(e)) return '🖼️'; if (['mp4','mov'].includes(e)) return '🎬'; return '📄'; }
+    function getIcon(name) { const e = name.split('.').pop()?.toLowerCase(); if (['jpg','png','gif','webp'].includes(e)) return '🖼️'; if (['mp4','mov','webm'].includes(e)) return '🎬'; if (['mp3','wav'].includes(e)) return '🎵'; return '📄'; }
     function formatBytes(b) { if (b===0) return '0 B'; const k=1024,i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['B','KB','MB','GB'][i]; }
     function escapeHtml(s) { return s.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
     function showProgress(show, msg='') { const c=document.getElementById('progressContainer'), f=document.getElementById('progressFill'), t=document.getElementById('progressText'); if(show){ c.style.display='block'; t.innerText=msg; f.style.width='70%'; setTimeout(()=>f.style.width='100%',200); }else{ c.style.display='none'; f.style.width='0%'; } }
     function toast(msg, type) { const t=document.createElement('div'); t.className='toast'; t.style.borderLeftColor=type==='success'?'#10b981':type==='error'?'#ef4444':'#3b82f6'; t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-triangle':'fa-info-circle'}"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
     function showCreateModal() { document.getElementById('createModal').classList.add('show'); }
     function showNoteModal() { document.getElementById('noteModal').classList.add('show'); }
+    function showB2Modal() { document.getElementById('b2Modal').classList.add('show'); }
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
     document.getElementById('fileInput').addEventListener('change', e => { if(e.target.files.length) uploadFiles(e.target.files); });
