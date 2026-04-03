@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IronVault • Private Encrypted Vault</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-locked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-unlocked {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #818cf8;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #e5e7eb;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: #818cf8;
+            background: rgba(129, 140, 248, 0.05);
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .file-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .file-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .file-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .file-name {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: #d1d5db;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .file-btn:hover {
+            background: rgba(129, 140, 248, 0.3);
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s;
+        }
+
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #6b7280;
+            grid-column: 1/-1;
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">🔐 IronVault</div>
+        <div id="statusBadge" class="status status-locked">🔒 Locked</div>
+    </div>
+
+    <!-- Setup View (First time) -->
+    <div id="setupView">
+        <div class="card">
+            <h2 style="margin-bottom: 8px;">Welcome to IronVault</h2>
+            <p style="color: #9ca3af; margin-bottom: 24px;">Your private, encrypted vault on Backblaze B2</p>
+            
+            <div class="warning-box">
+                🔐 <strong>Privacy First</strong><br>
+                • Your B2 credentials are stored ONLY in your browser<br>
+                • All files are encrypted BEFORE upload<br>
+                • No data ever sent to any third-party server<br>
+                • This app is open source - you can audit it
+            </div>
+
+            <h3 style="margin-bottom: 16px;">1. Enter Your Backblaze B2 Credentials</h3>
+            <div class="grid-2">
+                <div>
+                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Application Key ID</label>
+                    <input type="text" id="b2KeyId" class="input" placeholder="e.g., 00123abc456def789" value="08aa8a44f597">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Application Key</label>
+                    <input type="password" id="b2AppKey" class="input" placeholder="Your secret key">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Bucket Name</label>
+                    <input type="text" id="bucketName" class="input" placeholder="ironvault" value="ironvault">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Bucket ID</label>
+                    <input type="text" id="bucketId" class="input" placeholder="Bucket ID" value="90780a3a286a54249fd50917">
+                </div>
+            </div>
+
+            <h3 style="margin: 24px 0 16px;">2. Create Master Password</h3>
+            <input type="password" id="masterPass" class="input" placeholder="Master Password (min 8 chars)">
+            <input type="password" id="confirmMaster" class="input" placeholder="Confirm Master Password">
+            
+            <button class="btn btn-primary" onclick="initializeVault()">Initialize Vault</button>
+            
+            <p style="font-size: 12px; color: #6b7280; margin-top: 20px; text-align: center;">
+                ⚠️ Your master password CANNOT be recovered. Store it safely.
+            </p>
+        </div>
+    </div>
+
+    <!-- Login View -->
+    <div id="loginView" style="display: none;">
+        <div class="card" style="max-width: 400px; margin: 0 auto;">
+            <h2 style="margin-bottom: 8px;">Unlock Vault</h2>
+            <p style="color: #9ca3af; margin-bottom: 24px;">Enter your master password</p>
+            <input type="password" id="loginPass" class="input" placeholder="Master Password" onkeypress="if(event.key==='Enter') unlockVault()">
+            <button class="btn btn-primary" onclick="unlockVault()">Unlock</button>
+            <button class="btn btn-secondary" style="margin-top: 12px;" onclick="resetAndSetup()">Reset & Setup New Vault</button>
+        </div>
+    </div>
+
+    <!-- Vault View -->
+    <div id="vaultView" style="display: none;">
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Files</div>
+                <div class="stat-value" id="statFiles">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Storage</div>
+                <div class="stat-value" id="statStorage">0 MB</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Bucket</div>
+                <div class="stat-value" id="bucketDisplay">-</div>
+            </div>
+        </div>
+
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size: 48px; margin-bottom: 12px;">📤</div>
+            <div>Upload Files</div>
+            <div style="font-size: 13px; color: #9ca3af;">AES-256 encrypted before upload</div>
+            <input type="file" id="fileInput" multiple style="display: none" onchange="uploadFiles(this.files)">
+        </div>
+
+        <input type="text" id="searchInput" class="input" placeholder="🔍 Search files..." onkeyup="filterFiles()">
+
+        <div id="fileGrid" class="file-grid"></div>
+    </div>
+
+    <div id="progressContainer" class="progress-container">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="progressText" style="text-align: center; font-size: 12px; margin-top: 8px;"></div>
+    </div>
+</div>
+
+<script>
+    // ============ STATE ============
+    let masterKey = null;
+    let files = [];
+    let filterText = '';
+    let b2Auth = null;
+    let b2Config = null;
+
+    // ============ CRYPTO ============
+    async function deriveKey(password, salt) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+        return await crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+    }
+
+    async function encrypt(data, key) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+        return { iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) };
+    }
+
+    async function decrypt(encrypted, key) {
+        const iv = new Uint8Array(encrypted.iv);
+        const data = new Uint8Array(encrypted.data);
+        return await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+    }
+
+    // ============ B2 API ============
+    async function b2Authenticate() {
+        if (b2Auth) return b2Auth;
+        const authString = btoa(`${b2Config.keyId}:${b2Config.appKey}`);
+        const response = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', {
+            headers: { 'Authorization': `Basic ${authString}` }
+        });
+        if (!response.ok) throw new Error('B2 auth failed. Check your credentials.');
+        b2Auth = await response.json();
+        return b2Auth;
+    }
+
+    async function uploadToB2(file, encryptedData) {
+        const auth = await b2Authenticate();
+        
+        const uploadUrlRes = await fetch(`${auth.apiUrl}/b2api/v2/b2_get_upload_url`, {
+            method: 'POST',
+            headers: { 'Authorization': auth.authorizationToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bucketId: b2Config.bucketId })
+        });
+        const uploadUrl = await uploadUrlRes.json();
+        
+        const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}.enc`;
+        const blob = new Blob([new Uint8Array(encryptedData.data)]);
+        
+        const res = await fetch(uploadUrl.uploadUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': uploadUrl.authorizationToken,
+                'X-Bz-File-Name': fileName,
+                'Content-Type': 'application/octet-stream',
+                'X-Bz-Content-Sha1': 'do_not_verify'
+            },
+            body: blob
+        });
+        
+        if (!res.ok) throw new Error('Upload failed');
+        const result = await res.json();
+        return { fileName, fileId: result.fileId };
+    }
+
+    async function downloadFromB2(fileName) {
+        const auth = await b2Authenticate();
+        const res = await fetch(`${auth.downloadUrl}/file/${b2Config.bucketName}/${fileName}`, {
+            headers: { 'Authorization': auth.authorizationToken }
+        });
+        if (!res.ok) throw new Error('Download failed');
+        return new Uint8Array(await res.arrayBuffer());
+    }
+
+    async function deleteFromB2(fileName, fileId) {
+        const auth = await b2Authenticate();
+        const res = await fetch(`${auth.apiUrl}/b2api/v2/b2_delete_file_version`, {
+            method: 'POST',
+            headers: { 'Authorization': auth.authorizationToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName, fileId })
+        });
+        return res.ok;
+    }
+
+    // ============ VAULT OPERATIONS ============
+    async function initializeVault() {
+        const keyId = document.getElementById('b2KeyId').value.trim();
+        const appKey = document.getElementById('b2AppKey').value.trim();
+        const bucketName = document.getElementById('bucketName').value.trim();
+        const bucketId = document.getElementById('bucketId').value.trim();
+        const masterPass = document.getElementById('masterPass').value;
+        const confirmPass = document.getElementById('confirmMaster').value;
+        
+        if (!keyId || !appKey) {
+            toast('Enter your Backblaze B2 credentials', 'error');
+            return;
+        }
+        if (!masterPass || masterPass.length < 8) {
+            toast('Master password must be at least 8 characters', 'error');
+            return;
+        }
+        if (masterPass !== confirmPass) {
+            toast('Passwords do not match', 'error');
+            return;
+        }
+        
+        // Test B2 connection
+        try {
+            const testAuth = btoa(`${keyId}:${appKey}`);
+            const testRes = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', {
+                headers: { 'Authorization': `Basic ${testAuth}` }
+            });
+            if (!testRes.ok) throw new Error('Invalid B2 credentials');
+            toast('B2 connection successful!', 'success');
+        } catch(e) {
+            toast('B2 connection failed: ' + e.message, 'error');
+            return;
+        }
+        
+        // Save B2 config (encrypted with master password)
+        b2Config = { keyId, appKey, bucketName, bucketId };
+        
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const key = await deriveKey(masterPass, salt);
+        
+        // Encrypt and store B2 config
+        const b2ConfigEncrypted = await encrypt(new TextEncoder().encode(JSON.stringify(b2Config)), key);
+        
+        const emptyVault = { files: [], salt: Array.from(salt), created: Date.now() };
+        const vaultEncrypted = await encrypt(new TextEncoder().encode(JSON.stringify(emptyVault)), key);
+        
+        localStorage.setItem('iv_b2_config', JSON.stringify({ iv: b2ConfigEncrypted.iv, data: b2ConfigEncrypted.data }));
+        localStorage.setItem('iv_vault', JSON.stringify({ iv: vaultEncrypted.iv, data: vaultEncrypted.data }));
+        localStorage.setItem('iv_salt', JSON.stringify(Array.from(salt)));
+        
+        toast('Vault initialized!', 'success');
+        document.getElementById('setupView').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
+    }
+
+    async function unlockVault() {
+        const password = document.getElementById('loginPass').value;
+        if (!password) {
+            toast('Enter master password', 'error');
+            return;
+        }
+        
+        const storedSalt = localStorage.getItem('iv_salt');
+        const storedVault = localStorage.getItem('iv_vault');
+        const storedB2Config = localStorage.getItem('iv_b2_config');
+        
+        if (!storedSalt || !storedVault) {
+            toast('No vault found. Reset and setup first.', 'error');
+            return;
+        }
+        
+        try {
+            const salt = new Uint8Array(JSON.parse(storedSalt));
+            const key = await deriveKey(password, salt);
+            
+            // Decrypt B2 config
+            const b2Encrypted = JSON.parse(storedB2Config);
+            const b2Decrypted = await decrypt({ iv: b2Encrypted.iv, data: b2Encrypted.data }, key);
+            b2Config = JSON.parse(new TextDecoder().decode(b2Decrypted));
+            
+            // Decrypt vault
+            const vaultEncrypted = JSON.parse(storedVault);
+            const vaultDecrypted = await decrypt({ iv: vaultEncrypted.iv, data: vaultEncrypted.data }, key);
+            const vault = JSON.parse(new TextDecoder().decode(vaultDecrypted));
+            
+            masterKey = key;
+            files = vault.files || [];
+            
+            // Test B2 connection
+            await b2Authenticate();
+            
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('vaultView').style.display = 'block';
+            document.getElementById('statusBadge').innerHTML = '🔓 Unlocked';
+            document.getElementById('statusBadge').className = 'status status-unlocked';
+            document.getElementById('bucketDisplay').innerText = b2Config.bucketName;
+            
+            await refreshFromB2();
+            renderFiles();
+            updateStats();
+            toast('Vault unlocked', 'success');
+        } catch(e) {
+            console.error(e);
+            toast('Wrong password or corrupted vault', 'error');
+        }
+    }
+
+    async function refreshFromB2() {
+        try {
+            const auth = await b2Authenticate();
+            const res = await fetch(`${auth.apiUrl}/b2api/v2/b2_list_file_names`, {
+                method: 'POST',
+                headers: { 'Authorization': auth.authorizationToken, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bucketId: b2Config.bucketId, maxFileCount: 1000 })
+            });
+            const data = await res.json();
+            
+            for (const file of files) {
+                const match = data.files.find(f => f.fileName === file.b2FileName);
+                if (match) file.b2FileId = match.fileId;
+            }
+            await saveVault();
+        } catch(e) {
+            console.warn('B2 refresh:', e);
+        }
+    }
+
+    async function saveVault() {
+        const toSave = { files: files, updatedAt: Date.now() };
+        const encrypted = await encrypt(new TextEncoder().encode(JSON.stringify(toSave)), masterKey);
+        localStorage.setItem('iv_vault', JSON.stringify({ iv: encrypted.iv, data: encrypted.data }));
+    }
+
+    async function uploadFiles(fileList) {
+        if (!masterKey) return;
+        
+        for (const file of fileList) {
+            await uploadSingle(file);
+        }
+        renderFiles();
+        updateStats();
+    }
+
+    async function uploadSingle(file) {
+        showProgress(true, `Encrypting ${file.name}...`);
+        
+        try {
+            const buffer = await file.arrayBuffer();
+            const encrypted = await encrypt(buffer, masterKey);
+            
+            showProgress(true, `Uploading ${file.name}...`);
+            const result = await uploadToB2(file, encrypted);
+            
+            files.push({
+                id: crypto.randomUUID(),
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                b2FileName: result.fileName,
+                b2FileId: result.fileId,
+                uploadedAt: Date.now()
+            });
+            
+            await saveVault();
+            toast(`✓ ${file.name} uploaded`, 'success');
+        } catch(e) {
+            toast(`✗ ${file.name}: ${e.message}`, 'error');
+        } finally {
+            showProgress(false);
+        }
+    }
+
+    async function downloadFile(file) {
+        showProgress(true, `Downloading ${file.name}...`);
+        
+        try {
+            const encrypted = await downloadFromB2(file.b2FileName);
+            const decrypted = await decrypt({ iv: new Array(12).fill(0), data: Array.from(encrypted) }, masterKey);
+            
+            const blob = new Blob([decrypted], { type: file.type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            toast(`✓ ${file.name} downloaded`, 'success');
+        } catch(e) {
+            toast(`✗ Download failed: ${e.message}`, 'error');
+        } finally {
+            showProgress(false);
+        }
+    }
+
+    async function deleteFile(file) {
+        if (!confirm(`Delete "${file.name}" permanently?`)) return;
+        
+        showProgress(true, `Deleting ${file.name}...`);
+        
+        try {
+            await deleteFromB2(file.b2FileName, file.b2FileId);
+            files = files.filter(f => f.id !== file.id);
+            await saveVault();
+            renderFiles();
+            updateStats();
+            toast(`✓ ${file.name} deleted`, 'success');
+        } catch(e) {
+            toast(`✗ Delete failed: ${e.message}`, 'error');
+        } finally {
+            showProgress(false);
+        }
+    }
+
+    async function previewFile(file) {
+        showProgress(true, `Loading ${file.name}...`);
+        
+        try {
+            const encrypted = await downloadFromB2(file.b2FileName);
+            const decrypted = await decrypt({ iv: new Array(12).fill(0), data: Array.from(encrypted) }, masterKey);
+            const blob = new Blob([decrypted], { type: file.type });
+            const url = URL.createObjectURL(blob);
+            
+            // Simple preview modal
+            const win = window.open();
+            if (file.type.startsWith('image/')) {
+                win.document.write(`<img src="${url}" style="max-width:100%; background:#000;">`);
+            } else if (file.type.startsWith('video/')) {
+                win.document.write(`<video controls style="width:100%;" src="${url}"></video>`);
+            } else {
+                toast('Preview only available for images/videos', 'info');
+            }
+        } catch(e) {
+            toast(`Preview failed: ${e.message}`, 'error');
+        } finally {
+            showProgress(false);
+        }
+    }
+
+    function resetAndSetup() {
+        if (confirm('Reset all local data? Your files on B2 will remain but you\'ll lose the file list.')) {
+            localStorage.removeItem('iv_b2_config');
+            localStorage.removeItem('iv_vault');
+            localStorage.removeItem('iv_salt');
+            location.reload();
+        }
+    }
+
+    // ============ UI ============
+    function renderFiles() {
+        const grid = document.getElementById('fileGrid');
+        let filtered = files;
+        if (filterText) filtered = files.filter(f => f.name.toLowerCase().includes(filterText.toLowerCase()));
+        
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div class="empty-state">📭 No files. Upload something!</div>';
+            return;
+        }
+        
+        grid.innerHTML = filtered.map(file => `
+            <div class="file-card">
+                <div class="file-icon">${getIcon(file.name)}</div>
+                <div class="file-name" title="${escapeHtml(file.name)}">${truncate(file.name, 40)}</div>
+                <div class="file-size">${formatBytes(file.size)}</div>
+                <div class="file-actions">
+                    <button class="file-btn" onclick="previewFile(${JSON.stringify(file)})">👁️</button>
+                    <button class="file-btn" onclick="downloadFile(${JSON.stringify(file)})">⬇️</button>
+                    <button class="file-btn" onclick="deleteFile(${JSON.stringify(file)})">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateStats() {
+        document.getElementById('statFiles').innerText = files.length;
+        const totalSize = files.reduce((s, f) => s + (f.size || 0), 0);
+        document.getElementById('statStorage').innerText = formatBytes(totalSize);
+    }
+
+    function filterFiles() {
+        filterText = document.getElementById('searchInput').value;
+        renderFiles();
+    }
+
+    function getIcon(name) {
+        const ext = name.split('.').pop()?.toLowerCase();
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
+        if (['mp4','webm','avi','mov'].includes(ext)) return '🎬';
+        if (['mp3','wav','ogg'].includes(ext)) return '🎵';
+        if (ext === 'pdf') return '📄';
+        return '📁';
+    }
+
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function truncate(str, n) {
+        return str.length > n ? str.slice(0, n) + '...' : str;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function showProgress(show, text = '') {
+        const container = document.getElementById('progressContainer');
+        const fill = document.getElementById('progressFill');
+        const textEl = document.getElementById('progressText');
+        
+        if (show) {
+            container.style.display = 'block';
+            textEl.innerText = text;
+            fill.style.width = '50%';
+            setTimeout(() => fill.style.width = '100%', 100);
+        } else {
+            container.style.display = 'none';
+            fill.style.width = '0%';
+        }
+    }
+
+    function toast(msg, type) {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerText = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    // Check existing vault
+    if (localStorage.getItem('iv_salt')) {
+        document.getElementById('setupView').style.display = 'none';
+        document.getElementById('loginView').style.display = 'block';
+    }
+
+    // Drag & drop
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', async e => {
+        e.preventDefault();
+        if (masterKey && e.dataTransfer.files.length) {
+            await uploadFiles(e.dataTransfer.files);
+        }
+    });
+</script>
+</body>
+</html>
