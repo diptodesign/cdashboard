@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IronVault • Private Encrypted Vault</title>
+    <title>IronVault • Local Encrypted Vault</title>
     <style>
         * {
             margin: 0;
@@ -16,12 +16,12 @@
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
             min-height: 100vh;
             color: #fff;
+            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         .header {
@@ -210,63 +210,15 @@
             font-weight: 700;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        .search-input {
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #1a1a2e;
-            border-radius: 24px;
-            padding: 32px;
-            max-width: 450px;
-            width: 90%;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: #9ca3af;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .progress-container {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            width: 0%;
-            transition: width 0.3s;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
 
         .toast {
@@ -306,77 +258,30 @@
             margin-bottom: 20px;
             font-size: 13px;
         }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="logo">🔐 IronVault</div>
+        <div class="logo">🔐 IronVault • Local</div>
         <div id="statusBadge" class="status status-locked">🔒 Locked</div>
     </div>
 
-    <!-- Setup View (First time) -->
-    <div id="setupView">
-        <div class="card">
-            <h2 style="margin-bottom: 8px;">Welcome to IronVault</h2>
-            <p style="color: #9ca3af; margin-bottom: 24px;">Your private, encrypted vault on Backblaze B2</p>
-            
-            <div class="warning-box">
-                🔐 <strong>Privacy First</strong><br>
-                • Your B2 credentials are stored ONLY in your browser<br>
-                • All files are encrypted BEFORE upload<br>
-                • No data ever sent to any third-party server<br>
-                • This app is open source - you can audit it
-            </div>
-
-            <h3 style="margin-bottom: 16px;">1. Enter Your Backblaze B2 Credentials</h3>
-            <div class="grid-2">
-                <div>
-                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Application Key ID</label>
-                    <input type="text" id="b2KeyId" class="input" placeholder="e.g., 00123abc456def789" value="08aa8a44f597">
-                </div>
-                <div>
-                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Application Key</label>
-                    <input type="password" id="b2AppKey" class="input" placeholder="Your secret key">
-                </div>
-            </div>
-            <div class="grid-2">
-                <div>
-                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Bucket Name</label>
-                    <input type="text" id="bucketName" class="input" placeholder="ironvault" value="ironvault">
-                </div>
-                <div>
-                    <label style="font-size: 12px; color: #9ca3af; margin-bottom: 6px; display: block;">Bucket ID</label>
-                    <input type="text" id="bucketId" class="input" placeholder="Bucket ID" value="90780a3a286a54249fd50917">
-                </div>
-            </div>
-
-            <h3 style="margin: 24px 0 16px;">2. Create Master Password</h3>
-            <input type="password" id="masterPass" class="input" placeholder="Master Password (min 8 chars)">
-            <input type="password" id="confirmMaster" class="input" placeholder="Confirm Master Password">
-            
-            <button class="btn btn-primary" onclick="initializeVault()">Initialize Vault</button>
-            
-            <p style="font-size: 12px; color: #6b7280; margin-top: 20px; text-align: center;">
-                ⚠️ Your master password CANNOT be recovered. Store it safely.
-            </p>
-        </div>
-    </div>
-
     <!-- Login View -->
-    <div id="loginView" style="display: none;">
+    <div id="loginView">
         <div class="card" style="max-width: 400px; margin: 0 auto;">
-            <h2 style="margin-bottom: 8px;">Unlock Vault</h2>
-            <p style="color: #9ca3af; margin-bottom: 24px;">Enter your master password</p>
-            <input type="password" id="loginPass" class="input" placeholder="Master Password" onkeypress="if(event.key==='Enter') unlockVault()">
-            <button class="btn btn-primary" onclick="unlockVault()">Unlock</button>
-            <button class="btn btn-secondary" style="margin-top: 12px;" onclick="resetAndSetup()">Reset & Setup New Vault</button>
+            <h2 style="margin-bottom: 8px;">Local Encrypted Vault</h2>
+            <p style="color: #9ca3af; margin-bottom: 24px;">Files stored in your browser (IndexedDB)</p>
+            <div class="warning-box">
+                📦 <strong>100% Local</strong><br>
+                • Files never leave your device<br>
+                • AES-256 encrypted<br>
+                • Works offline<br>
+                • No cloud dependency
+            </div>
+            <input type="password" id="loginPass" class="input" placeholder="Master Password" onkeypress="if(event.key==='Enter') unlock()">
+            <button class="btn btn-primary" onclick="unlock()">Unlock Vault</button>
+            <button class="btn btn-secondary" style="margin-top: 12px;" onclick="showCreateModal()">Create New Vault</button>
         </div>
     </div>
 
@@ -392,26 +297,42 @@
                 <div class="stat-value" id="statStorage">0 MB</div>
             </div>
             <div class="stat">
-                <div class="stat-label">Bucket</div>
-                <div class="stat-value" id="bucketDisplay">-</div>
+                <div class="stat-label">Location</div>
+                <div class="stat-value" style="font-size: 20px;">Browser</div>
             </div>
         </div>
 
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
             <div style="font-size: 48px; margin-bottom: 12px;">📤</div>
             <div>Upload Files</div>
-            <div style="font-size: 13px; color: #9ca3af;">AES-256 encrypted before upload</div>
+            <div style="font-size: 13px; color: #9ca3af;">AES-256 encrypted • Stored locally</div>
             <input type="file" id="fileInput" multiple style="display: none" onchange="uploadFiles(this.files)">
         </div>
 
-        <input type="text" id="searchInput" class="input" placeholder="🔍 Search files..." onkeyup="filterFiles()">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search files..." onkeyup="filterFiles()">
 
         <div id="fileGrid" class="file-grid"></div>
     </div>
 
-    <div id="progressContainer" class="progress-container">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div id="progressContainer" style="display: none; margin-top: 20px;">
+        <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+            <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, #4f46e5, #7c3aed); width: 0%; transition: width 0.3s;"></div>
+        </div>
         <div id="progressText" style="text-align: center; font-size: 12px; margin-top: 8px;"></div>
+    </div>
+</div>
+
+<!-- Create Vault Modal -->
+<div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000;">
+    <div style="background: #1a1a2e; border-radius: 24px; padding: 32px; max-width: 450px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3>Create New Vault</h3>
+            <button onclick="closeCreateModal()" style="background: none; border: none; color: #9ca3af; font-size: 24px; cursor: pointer;">×</button>
+        </div>
+        <input type="password" id="newPass" class="input" placeholder="Master Password (min 8 chars)">
+        <input type="password" id="confirmPass" class="input" placeholder="Confirm Password">
+        <div style="color: #f59e0b; font-size: 12px; margin-bottom: 20px;">⚠️ This password CANNOT be recovered if lost!</div>
+        <button class="btn btn-primary" onclick="createVault()">Create Vault</button>
     </div>
 </div>
 
@@ -420,8 +341,6 @@
     let masterKey = null;
     let files = [];
     let filterText = '';
-    let b2Auth = null;
-    let b2Config = null;
 
     // ============ CRYPTO ============
     async function deriveKey(password, salt) {
@@ -448,165 +367,122 @@
         return await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
     }
 
-    // ============ B2 API ============
-    async function b2Authenticate() {
-        if (b2Auth) return b2Auth;
-        const authString = btoa(`${b2Config.keyId}:${b2Config.appKey}`);
-        const response = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', {
-            headers: { 'Authorization': `Basic ${authString}` }
+    // ============ INDEXEDDB ============
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('IronVault', 1);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('files')) {
+                    db.createObjectStore('files', { keyPath: 'id' });
+                }
+            };
         });
-        if (!response.ok) throw new Error('B2 auth failed. Check your credentials.');
-        b2Auth = await response.json();
-        return b2Auth;
     }
 
-    async function uploadToB2(file, encryptedData) {
-        const auth = await b2Authenticate();
-        
-        const uploadUrlRes = await fetch(`${auth.apiUrl}/b2api/v2/b2_get_upload_url`, {
-            method: 'POST',
-            headers: { 'Authorization': auth.authorizationToken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bucketId: b2Config.bucketId })
+    async function saveFileToDB(fileData) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            const request = store.put(fileData);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
         });
-        const uploadUrl = await uploadUrlRes.json();
-        
-        const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}.enc`;
-        const blob = new Blob([new Uint8Array(encryptedData.data)]);
-        
-        const res = await fetch(uploadUrl.uploadUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': uploadUrl.authorizationToken,
-                'X-Bz-File-Name': fileName,
-                'Content-Type': 'application/octet-stream',
-                'X-Bz-Content-Sha1': 'do_not_verify'
-            },
-            body: blob
-        });
-        
-        if (!res.ok) throw new Error('Upload failed');
-        const result = await res.json();
-        return { fileName, fileId: result.fileId };
     }
 
-    async function downloadFromB2(fileName) {
-        const auth = await b2Authenticate();
-        const res = await fetch(`${auth.downloadUrl}/file/${b2Config.bucketName}/${fileName}`, {
-            headers: { 'Authorization': auth.authorizationToken }
+    async function getAllFilesFromDB() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readonly');
+            const store = tx.objectStore('files');
+            const request = store.getAll();
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
         });
-        if (!res.ok) throw new Error('Download failed');
-        return new Uint8Array(await res.arrayBuffer());
     }
 
-    async function deleteFromB2(fileName, fileId) {
-        const auth = await b2Authenticate();
-        const res = await fetch(`${auth.apiUrl}/b2api/v2/b2_delete_file_version`, {
-            method: 'POST',
-            headers: { 'Authorization': auth.authorizationToken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName, fileId })
+    async function deleteFileFromDB(id) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            const request = store.delete(id);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
         });
-        return res.ok;
     }
 
     // ============ VAULT OPERATIONS ============
-    async function initializeVault() {
-        const keyId = document.getElementById('b2KeyId').value.trim();
-        const appKey = document.getElementById('b2AppKey').value.trim();
-        const bucketName = document.getElementById('bucketName').value.trim();
-        const bucketId = document.getElementById('bucketId').value.trim();
-        const masterPass = document.getElementById('masterPass').value;
-        const confirmPass = document.getElementById('confirmMaster').value;
+    async function createVault() {
+        const pass = document.getElementById('newPass').value;
+        const confirm = document.getElementById('confirmPass').value;
         
-        if (!keyId || !appKey) {
-            toast('Enter your Backblaze B2 credentials', 'error');
+        if (!pass || pass.length < 8) {
+            toast('Password must be at least 8 characters', 'error');
             return;
         }
-        if (!masterPass || masterPass.length < 8) {
-            toast('Master password must be at least 8 characters', 'error');
-            return;
-        }
-        if (masterPass !== confirmPass) {
+        if (pass !== confirm) {
             toast('Passwords do not match', 'error');
             return;
         }
         
-        // Test B2 connection
-        try {
-            const testAuth = btoa(`${keyId}:${appKey}`);
-            const testRes = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', {
-                headers: { 'Authorization': `Basic ${testAuth}` }
-            });
-            if (!testRes.ok) throw new Error('Invalid B2 credentials');
-            toast('B2 connection successful!', 'success');
-        } catch(e) {
-            toast('B2 connection failed: ' + e.message, 'error');
-            return;
-        }
-        
-        // Save B2 config (encrypted with master password)
-        b2Config = { keyId, appKey, bucketName, bucketId };
-        
         const salt = crypto.getRandomValues(new Uint8Array(16));
-        const key = await deriveKey(masterPass, salt);
+        const key = await deriveKey(pass, salt);
+        const emptyVault = { salt: Array.from(salt), created: Date.now() };
         
-        // Encrypt and store B2 config
-        const b2ConfigEncrypted = await encrypt(new TextEncoder().encode(JSON.stringify(b2Config)), key);
+        const encrypted = await encrypt(new TextEncoder().encode(JSON.stringify(emptyVault)), key);
         
-        const emptyVault = { files: [], salt: Array.from(salt), created: Date.now() };
-        const vaultEncrypted = await encrypt(new TextEncoder().encode(JSON.stringify(emptyVault)), key);
+        localStorage.setItem('ivault_meta', JSON.stringify({ iv: encrypted.iv, data: encrypted.data }));
+        localStorage.setItem('ivault_salt', JSON.stringify(Array.from(salt)));
         
-        localStorage.setItem('iv_b2_config', JSON.stringify({ iv: b2ConfigEncrypted.iv, data: b2ConfigEncrypted.data }));
-        localStorage.setItem('iv_vault', JSON.stringify({ iv: vaultEncrypted.iv, data: vaultEncrypted.data }));
-        localStorage.setItem('iv_salt', JSON.stringify(Array.from(salt)));
-        
-        toast('Vault initialized!', 'success');
-        document.getElementById('setupView').style.display = 'none';
-        document.getElementById('loginView').style.display = 'block';
+        closeCreateModal();
+        document.getElementById('loginPass').value = pass;
+        toast('Vault created! Click Unlock', 'success');
     }
 
-    async function unlockVault() {
+    async function unlock() {
         const password = document.getElementById('loginPass').value;
         if (!password) {
             toast('Enter master password', 'error');
             return;
         }
         
-        const storedSalt = localStorage.getItem('iv_salt');
-        const storedVault = localStorage.getItem('iv_vault');
-        const storedB2Config = localStorage.getItem('iv_b2_config');
+        const storedSalt = localStorage.getItem('ivault_salt');
+        const storedMeta = localStorage.getItem('ivault_meta');
         
-        if (!storedSalt || !storedVault) {
-            toast('No vault found. Reset and setup first.', 'error');
+        if (!storedSalt || !storedMeta) {
+            toast('No vault found. Create one first', 'error');
             return;
         }
         
         try {
             const salt = new Uint8Array(JSON.parse(storedSalt));
             const key = await deriveKey(password, salt);
+            const meta = JSON.parse(storedMeta);
             
-            // Decrypt B2 config
-            const b2Encrypted = JSON.parse(storedB2Config);
-            const b2Decrypted = await decrypt({ iv: b2Encrypted.iv, data: b2Encrypted.data }, key);
-            b2Config = JSON.parse(new TextDecoder().decode(b2Decrypted));
-            
-            // Decrypt vault
-            const vaultEncrypted = JSON.parse(storedVault);
-            const vaultDecrypted = await decrypt({ iv: vaultEncrypted.iv, data: vaultEncrypted.data }, key);
-            const vault = JSON.parse(new TextDecoder().decode(vaultDecrypted));
+            await decrypt({ iv: meta.iv, data: meta.data }, key);
             
             masterKey = key;
-            files = vault.files || [];
             
-            // Test B2 connection
-            await b2Authenticate();
+            // Load files from IndexedDB
+            const dbFiles = await getAllFilesFromDB();
+            files = dbFiles.map(f => ({
+                id: f.id,
+                name: f.name,
+                type: f.type,
+                size: f.size,
+                encryptedData: f.encryptedData,
+                uploadedAt: f.uploadedAt
+            }));
             
             document.getElementById('loginView').style.display = 'none';
             document.getElementById('vaultView').style.display = 'block';
             document.getElementById('statusBadge').innerHTML = '🔓 Unlocked';
             document.getElementById('statusBadge').className = 'status status-unlocked';
-            document.getElementById('bucketDisplay').innerText = b2Config.bucketName;
             
-            await refreshFromB2();
             renderFiles();
             updateStats();
             toast('Vault unlocked', 'success');
@@ -614,32 +490,6 @@
             console.error(e);
             toast('Wrong password or corrupted vault', 'error');
         }
-    }
-
-    async function refreshFromB2() {
-        try {
-            const auth = await b2Authenticate();
-            const res = await fetch(`${auth.apiUrl}/b2api/v2/b2_list_file_names`, {
-                method: 'POST',
-                headers: { 'Authorization': auth.authorizationToken, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bucketId: b2Config.bucketId, maxFileCount: 1000 })
-            });
-            const data = await res.json();
-            
-            for (const file of files) {
-                const match = data.files.find(f => f.fileName === file.b2FileName);
-                if (match) file.b2FileId = match.fileId;
-            }
-            await saveVault();
-        } catch(e) {
-            console.warn('B2 refresh:', e);
-        }
-    }
-
-    async function saveVault() {
-        const toSave = { files: files, updatedAt: Date.now() };
-        const encrypted = await encrypt(new TextEncoder().encode(JSON.stringify(toSave)), masterKey);
-        localStorage.setItem('iv_vault', JSON.stringify({ iv: encrypted.iv, data: encrypted.data }));
     }
 
     async function uploadFiles(fileList) {
@@ -659,20 +509,18 @@
             const buffer = await file.arrayBuffer();
             const encrypted = await encrypt(buffer, masterKey);
             
-            showProgress(true, `Uploading ${file.name}...`);
-            const result = await uploadToB2(file, encrypted);
-            
-            files.push({
+            const fileData = {
                 id: crypto.randomUUID(),
                 name: file.name,
                 type: file.type,
                 size: file.size,
-                b2FileName: result.fileName,
-                b2FileId: result.fileId,
+                encryptedData: encrypted,
                 uploadedAt: Date.now()
-            });
+            };
             
-            await saveVault();
+            await saveFileToDB(fileData);
+            files.push(fileData);
+            
             toast(`✓ ${file.name} uploaded`, 'success');
         } catch(e) {
             toast(`✗ ${file.name}: ${e.message}`, 'error');
@@ -682,12 +530,10 @@
     }
 
     async function downloadFile(file) {
-        showProgress(true, `Downloading ${file.name}...`);
+        showProgress(true, `Decrypting ${file.name}...`);
         
         try {
-            const encrypted = await downloadFromB2(file.b2FileName);
-            const decrypted = await decrypt({ iv: new Array(12).fill(0), data: Array.from(encrypted) }, masterKey);
-            
+            const decrypted = await decrypt(file.encryptedData, masterKey);
             const blob = new Blob([decrypted], { type: file.type });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -710,9 +556,8 @@
         showProgress(true, `Deleting ${file.name}...`);
         
         try {
-            await deleteFromB2(file.b2FileName, file.b2FileId);
+            await deleteFileFromDB(file.id);
             files = files.filter(f => f.id !== file.id);
-            await saveVault();
             renderFiles();
             updateStats();
             toast(`✓ ${file.name} deleted`, 'success');
@@ -724,36 +569,28 @@
     }
 
     async function previewFile(file) {
-        showProgress(true, `Loading ${file.name}...`);
-        
-        try {
-            const encrypted = await downloadFromB2(file.b2FileName);
-            const decrypted = await decrypt({ iv: new Array(12).fill(0), data: Array.from(encrypted) }, masterKey);
-            const blob = new Blob([decrypted], { type: file.type });
-            const url = URL.createObjectURL(blob);
-            
-            // Simple preview modal
-            const win = window.open();
-            if (file.type.startsWith('image/')) {
+        if (file.type.startsWith('image/')) {
+            try {
+                const decrypted = await decrypt(file.encryptedData, masterKey);
+                const blob = new Blob([decrypted], { type: file.type });
+                const url = URL.createObjectURL(blob);
+                const win = window.open();
                 win.document.write(`<img src="${url}" style="max-width:100%; background:#000;">`);
-            } else if (file.type.startsWith('video/')) {
-                win.document.write(`<video controls style="width:100%;" src="${url}"></video>`);
-            } else {
-                toast('Preview only available for images/videos', 'info');
+            } catch(e) {
+                toast('Preview failed', 'error');
             }
-        } catch(e) {
-            toast(`Preview failed: ${e.message}`, 'error');
-        } finally {
-            showProgress(false);
-        }
-    }
-
-    function resetAndSetup() {
-        if (confirm('Reset all local data? Your files on B2 will remain but you\'ll lose the file list.')) {
-            localStorage.removeItem('iv_b2_config');
-            localStorage.removeItem('iv_vault');
-            localStorage.removeItem('iv_salt');
-            location.reload();
+        } else if (file.type.startsWith('video/')) {
+            try {
+                const decrypted = await decrypt(file.encryptedData, masterKey);
+                const blob = new Blob([decrypted], { type: file.type });
+                const url = URL.createObjectURL(blob);
+                const win = window.open();
+                win.document.write(`<video controls style="width:100%;" src="${url}"></video>`);
+            } catch(e) {
+                toast('Preview failed', 'error');
+            }
+        } else {
+            toast('Preview only available for images/videos', 'info');
         }
     }
 
@@ -847,10 +684,19 @@
         setTimeout(() => t.remove(), 3000);
     }
 
+    function showCreateModal() {
+        document.getElementById('createModal').style.display = 'flex';
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createModal').style.display = 'none';
+        document.getElementById('newPass').value = '';
+        document.getElementById('confirmPass').value = '';
+    }
+
     // Check existing vault
-    if (localStorage.getItem('iv_salt')) {
-        document.getElementById('setupView').style.display = 'none';
-        document.getElementById('loginView').style.display = 'block';
+    if (localStorage.getItem('ivault_salt')) {
+        document.getElementById('loginPass').focus();
     }
 
     // Drag & drop
