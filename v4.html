@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IronVault • Backblaze B2 Native Upload</title>
+    <title>IronVault Pro • Paste Images/Videos • Encrypted Vault</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -199,16 +199,26 @@
             margin: 16px 0;
             font-size: 13px;
         }
-        .cloud-connected { background: rgba(16,185,129,0.2); color: #34d399; padding: 4px 12px; border-radius: 40px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
-        .cloud-disconnected { background: rgba(239,68,68,0.2); color: #f87171; padding: 4px 12px; border-radius: 40px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+        .paste-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(139,92,246,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            border: 1px solid #8b5cf6;
+            pointer-events: none;
+            z-index: 100;
+        }
         select, option { background: #1a1838; color: white; }
-        .download-link { color: #a78bfa; text-decoration: none; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <div class="logo"><h1><i class="fas fa-castle"></i> IronVault Pro</h1><span style="font-size: 12px;">AES-256 • Local + Cloud Backup</span></div>
+        <div class="logo"><h1><i class="fas fa-castle"></i> IronVault Pro</h1><span style="font-size: 12px;">AES-256 • Paste Images/Videos • Ctrl+V</span></div>
         <div style="display: flex; gap: 12px;">
             <div id="statusBadge" class="badge-status locked-badge"><i class="fas fa-lock"></i> LOCKED</div>
         </div>
@@ -219,11 +229,11 @@
         <div class="glass" style="max-width: 520px; margin: 70px auto; padding: 44px 36px; text-align: center;">
             <i class="fas fa-shield-haltered" style="font-size: 58px; color: #a78bfa;"></i>
             <h2 style="margin: 20px 0 8px;">IronVault Pro</h2>
-            <p style="margin-bottom: 30px; color: #b9c3e6;">Your encrypted fortress with cloud backup</p>
+            <p style="margin-bottom: 30px; color: #b9c3e6;">Your encrypted fortress with paste support</p>
             
             <div class="warning-box">
-                <i class="fas fa-exclamation-triangle"></i> <strong>Backblaze B2 Free Tier Note:</strong><br>
-                Direct browser uploads require CORS. Use the <strong>"Download Backup"</strong> option instead, or upgrade B2 for CORS support.
+                <i class="fas fa-paste"></i> <strong>New: Paste Images/Videos!</strong><br>
+                After unlocking, press <strong>Ctrl+V</strong> anywhere to paste images/screenshots directly into your vault.
             </div>
             
             <input type="password" id="masterPassInput" class="search-field" placeholder="Enter master password" onkeypress="if(event.key==='Enter') unlockVault()" style="margin-bottom: 16px;">
@@ -232,7 +242,7 @@
             
             <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 28px;">
                 <span style="background: rgba(139,92,246,0.15); padding: 4px 12px; border-radius: 40px; font-size: 11px;"><i class="fas fa-database"></i> Local Storage</span>
-                <span style="background: rgba(139,92,246,0.15); padding: 4px 12px; border-radius: 40px; font-size: 11px;"><i class="fas fa-cloud"></i> Manual Backup</span>
+                <span style="background: rgba(139,92,246,0.15); padding: 4px 12px; border-radius: 40px; font-size: 11px;"><i class="fas fa-paste"></i> Ctrl+V Paste</span>
                 <span style="background: rgba(139,92,246,0.15); padding: 4px 12px; border-radius: 40px; font-size: 11px;"><i class="fas fa-note-sticky"></i> Secure Notes</span>
             </div>
         </div>
@@ -243,13 +253,14 @@
         <div class="stats-panel">
             <div class="stat-tile"><div class="stat-label"><i class="fas fa-file-alt"></i> Total Items</div><div class="stat-number" id="statTotal">0</div></div>
             <div class="stat-tile"><div class="stat-label"><i class="fas fa-weight-hanging"></i> Encrypted Size</div><div class="stat-number" id="statSize">0 MB</div></div>
-            <div class="stat-tile"><div class="stat-label"><i class="fas fa-cloud"></i> Cloud Status</div><div class="stat-number" id="cloudStat" style="font-size: 1rem;">⚡ Manual Backup Only</div></div>
+            <div class="stat-tile"><div class="stat-label"><i class="fas fa-cloud"></i> Cloud Status</div><div class="stat-number" id="cloudStat" style="font-size: 1rem;">⚡ Manual Backup</div></div>
+            <div class="stat-tile"><div class="stat-label"><i class="fas fa-paste"></i> Paste Ready</div><div class="stat-number" style="font-size: 1rem;">✅ Ctrl+V Active</div></div>
         </div>
 
         <div class="upload-zone" onclick="document.getElementById('bulkUpload').click()">
             <i class="fas fa-cloud-upload-alt" style="font-size: 52px; margin-bottom: 12px; display: block;"></i>
             <div style="font-weight: 700;">Secure Upload Zone</div>
-            <div style="font-size: 0.75rem;">AES-256 encrypted • Drag & drop • Stored locally</div>
+            <div style="font-size: 0.75rem;">Click to upload • Drag & drop • <strong>Ctrl+V to paste images/videos</strong></div>
             <input type="file" id="bulkUpload" multiple style="display: none" onchange="processUploads(this.files)">
         </div>
 
@@ -259,7 +270,7 @@
             <button class="btn-outline" onclick="showNoteModal()"><i class="fas fa-sticky-note"></i> Secure Note</button>
             <button class="btn-outline" onclick="exportVaultToFile()"><i class="fas fa-download"></i> Download Backup</button>
             <button class="btn-outline" onclick="importVaultFromFile()"><i class="fas fa-upload"></i> Restore Backup</button>
-            <button class="btn-outline" onclick="showB2Instructions()"><i class="fas fa-cloud-upload-alt"></i> B2 Instructions</button>
+            <button class="btn-outline" onclick="showB2Instructions()"><i class="fas fa-cloud-upload-alt"></i> B2 Guide</button>
         </div>
 
         <div id="fileGridContainer" class="file-masonry"></div>
@@ -267,26 +278,20 @@
     </div>
 </div>
 
+<div class="paste-hint" id="pasteHint">
+    <i class="fas fa-paste"></i> <span id="pasteHintText">Unlock vault to paste images/videos (Ctrl+V)</span>
+</div>
+
 <!-- MODALS -->
 <div id="createModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-dungeon"></i> Create New Vault</h3><input type="password" id="newVaultPass" class="search-field" style="margin: 18px 0;" placeholder="Master password (min 8 chars)"><input type="password" id="confirmVaultPass" class="search-field" placeholder="Confirm password"><button class="btn-glow" style="margin-top: 20px; width:100%;" onclick="initNewVault()">Create Encrypted Vault</button><button class="btn-outline" style="margin-top: 12px; width:100%;" onclick="closeModal('createModal')">Cancel</button></div></div>
 <div id="noteModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-pen-fancy"></i> Encrypted Secure Note</h3><input type="text" id="noteTitle" class="search-field" placeholder="Title" style="margin: 15px 0;"><textarea id="noteBody" rows="5" class="search-field" placeholder="Your secret text (AES-256 encrypted locally)"></textarea><div style="display: flex; gap: 12px; margin-top: 20px;"><button class="btn-glow" onclick="saveSecureNote()">Save Encrypted</button><button class="btn-outline" onclick="closeModal('noteModal')">Cancel</button></div></div></div>
 <div id="b2InstructionsModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-cloud"></i> Manual Backblaze B2 Backup</h3>
     <div class="info-box">
-        <i class="fas fa-info-circle"></i> <strong>Why direct sync doesn't work:</strong><br>
-        Backblaze B2 free tier doesn't support CORS headers required for browser uploads.
-    </div>
-    <div class="warning-box">
-        <i class="fas fa-lightbulb"></i> <strong>How to back up to B2 manually:</strong><br>
-        <ol style="margin-left: 20px; margin-top: 10px;">
-            <li>Click <strong>"Download Backup"</strong> in the vault</li>
-            <li>Save the <code>.ivault</code> file to your computer</li>
-            <li>Go to <a href="https://secure.backblaze.com" target="_blank" style="color:#a78bfa;">Backblaze B2 Console</a></li>
-            <li>Upload the file manually to your <strong>ironvault</strong> bucket</li>
-            <li>To restore, use <strong>"Restore Backup"</strong> in the vault</li>
-        </ol>
-    </div>
-    <div class="info-box">
-        <i class="fas fa-shield-alt"></i> <strong>Security:</strong> Your backup file is already AES-256 encrypted with your master password before download.
+        <i class="fas fa-info-circle"></i> <strong>To back up to B2:</strong><br>
+        1. Click "Download Backup"<br>
+        2. Save the .ivault file<br>
+        3. Upload manually to your ironvault bucket at backblaze.com<br>
+        4. Use "Restore Backup" to recover
     </div>
     <button class="btn-outline" style="margin-top: 16px; width:100%;" onclick="closeModal('b2InstructionsModal')">Close</button>
 </div></div>
@@ -365,15 +370,56 @@
             document.getElementById('vaultDashboard').style.display = 'block';
             document.getElementById('statusBadge').innerHTML = '<i class="fas fa-shield-haltered"></i> UNLOCKED';
             document.getElementById('statusBadge').className = 'badge-status unlocked-badge';
+            document.getElementById('pasteHintText').innerHTML = '✓ Ready! Paste images/videos (Ctrl+V)';
+            document.getElementById('pasteHint').style.background = 'rgba(16,185,129,0.2)';
             renderVaultGrid();
             updateStats();
-            toast('Vault unlocked successfully!', 'success');
+            toast('Vault unlocked! You can now paste images/videos with Ctrl+V', 'success');
         } catch(e) { toast('Wrong password!', 'error'); }
     }
 
+    // ==================== PASTE HANDLER (Ctrl+V for images/videos) ====================
+    function setupPasteHandler() {
+        document.addEventListener('paste', async (e) => {
+            if (!activeMasterKey) {
+                toast('Vault is locked. Unlock first to paste.', 'error');
+                return;
+            }
+            
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        // Generate filename from timestamp
+                        const ext = file.type.split('/')[1] || 'png';
+                        const filename = `Pasted_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.${ext}`;
+                        const renamedFile = new File([file], filename, { type: file.type });
+                        await uploadFileItem(renamedFile);
+                        renderVaultGrid();
+                        updateStats();
+                        toast(`📋 Pasted image saved as ${filename}`, 'success');
+                    }
+                } else if (item.type.indexOf('video') !== -1) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        const ext = file.type.split('/')[1] || 'mp4';
+                        const filename = `Pasted_Video_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.${ext}`;
+                        const renamedFile = new File([file], filename, { type: file.type });
+                        await uploadFileItem(renamedFile);
+                        renderVaultGrid();
+                        updateStats();
+                        toast(`📋 Pasted video saved as ${filename}`, 'success');
+                    }
+                }
+            }
+        });
+    }
+    
     // File & Note Operations
     async function processUploads(files) { if (!activeMasterKey) return; for (let f of files) await uploadFileItem(f); renderVaultGrid(); updateStats(); }
-    async function uploadFileItem(file) { showProgress(true, `Encrypting ${file.name}...`); try { const buffer = await file.arrayBuffer(); const encrypted = await encryptBlob(buffer, activeMasterKey); const newItem = { id: crypto.randomUUID(), name: file.name, type: file.type, size: file.size, encryptedData: encrypted, uploadedAt: Date.now(), isNote: false }; await saveItem(newItem); vaultFiles.push(newItem); toast(`✅ ${file.name} encrypted & stored locally`, 'success'); } catch(e) { toast(`Failed ${file.name}`, 'error'); } finally { showProgress(false); } }
+    async function uploadFileItem(file) { showProgress(true, `Encrypting ${file.name}...`); try { const buffer = await file.arrayBuffer(); const encrypted = await encryptBlob(buffer, activeMasterKey); const newItem = { id: crypto.randomUUID(), name: file.name, type: file.type, size: file.size, encryptedData: encrypted, uploadedAt: Date.now(), isNote: false }; await saveItem(newItem); vaultFiles.push(newItem); toast(`✅ ${file.name} encrypted & stored`, 'success'); } catch(e) { toast(`Failed ${file.name}`, 'error'); } finally { showProgress(false); } }
     
     async function saveSecureNote() { const title = document.getElementById('noteTitle').value.trim(); const body = document.getElementById('noteBody').value; if (!title || !body) { toast('Title & content required', 'error'); return; } const noteContent = JSON.stringify({ title, body, createdAt: Date.now() }); const encryptedNote = await encryptBlob(new TextEncoder().encode(noteContent), activeMasterKey); const noteItem = { id: crypto.randomUUID(), name: `📝 ${title}`, type: 'text/note', size: noteContent.length, encryptedData: encryptedNote, uploadedAt: Date.now(), isNote: true }; await saveItem(noteItem); vaultFiles.push(noteItem); closeModal('noteModal'); document.getElementById('noteTitle').value = ''; document.getElementById('noteBody').value = ''; renderVaultGrid(); updateStats(); toast('Secure note saved', 'success'); }
     
@@ -397,7 +443,7 @@
             a.download = `ironvault_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.ivault`;
             a.click();
             URL.revokeObjectURL(url);
-            toast('Backup exported! You can now upload this file to Backblaze B2 manually.', 'success');
+            toast('Backup exported!', 'success');
         } catch(e) { toast('Export failed', 'error'); }
         finally { showProgress(false); }
     }
@@ -436,7 +482,7 @@
         else if (currentSort === 'size') filtered.sort((a, b) => (a.size || 0) - (b.size || 0));
         else filtered.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
         const container = document.getElementById('fileGridContainer');
-        if (filtered.length === 0) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 70px;"><i class="fas fa-feather-alt" style="font-size: 54px;"></i><p>No files — upload or create a secure note</p><p style="font-size:12px; margin-top:8px;">Files are stored locally. Use "Download Backup" to save to Backblaze B2.</p></div>`; return; }
+        if (filtered.length === 0) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 70px;"><i class="fas fa-feather-alt" style="font-size: 54px;"></i><p>No files — upload or paste images/videos (Ctrl+V)</p><p style="font-size:12px; margin-top:8px;">Try pasting a screenshot or image directly!</p></div>`; return; }
         container.innerHTML = filtered.map(f => `<div class="file-tile"><div style="font-size:48px;">${f.isNote ? '📓' : getFileEmoji(f.name)}</div><div style="font-weight:700;">${escapeHtml(f.name.substring(0,38))}</div><div style="font-size:11px; margin:8px 0;">${f.isNote ? 'Encrypted Note' : formatBytes(f.size)} • ${new Date(f.uploadedAt).toLocaleDateString()}</div><div style="display:flex; gap:12px; flex-wrap:wrap;"><button class="btn-outline" style="padding:6px 14px;" onclick='previewItem(${JSON.stringify(f)})'><i class="fas fa-eye"></i> View</button><button class="btn-outline" style="padding:6px 14px;" onclick='downloadItem(${JSON.stringify(f)})'><i class="fas fa-download"></i> Get</button><button class="btn-outline" style="padding:6px 14px; border-color:#ef4444;" onclick='deleteVaultItem(${JSON.stringify(f)})'><i class="fas fa-trash"></i> Wipe</button></div></div>`).join('');
     }
 
@@ -452,9 +498,14 @@
     function showNoteModal() { document.getElementById('noteModal').classList.add('show'); }
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
+    // Event Listeners
     document.getElementById('bulkUpload').addEventListener('change', e => { if(e.target.files.length) processUploads(e.target.files); });
     document.addEventListener('dragover', e => e.preventDefault());
     document.addEventListener('drop', async e => { e.preventDefault(); if (activeMasterKey && e.dataTransfer.files.length) { await processUploads(e.dataTransfer.files); } });
+    
+    // Initialize paste handler
+    setupPasteHandler();
+    
     if (localStorage.getItem('vault_salt_omni')) document.getElementById('masterPassInput')?.focus();
 </script>
 </body>
