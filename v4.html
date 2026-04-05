@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>IronVault Drive • Real Google Drive Backup</title>
+    <title>IronVault Drive • Google Drive Backup & Restore</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -69,6 +69,8 @@
         .btn-drive-primary:hover { background: #1557b0; }
         .btn-drive-outline { border: 1px solid #dadce0; background: white; }
         .btn-drive-outline:hover { background: #f1f3f4; }
+        .btn-danger { border-color: #dc2626; color: #dc2626; }
+        .btn-danger:hover { background: #fee2e2; }
         .status-chip {
             background: #e8f0fe;
             border-radius: 30px;
@@ -159,10 +161,12 @@
         .modal-card-drive {
             background: white;
             border-radius: 32px;
-            max-width: 500px;
+            max-width: 550px;
             width: 90%;
             padding: 28px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .form-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 28px; margin: 10px 0; outline: none; font-family: inherit; }
         .toast-message {
@@ -187,6 +191,7 @@
         .gdrive-badge:hover { background: #d4e4ff; }
         .text-small { font-size: 0.7rem; color: #475569; }
         .warning-text { color: #dc2626; font-size: 0.7rem; margin-top: 4px; }
+        .success-text { color: #10b981; font-size: 0.7rem; margin-top: 4px; }
         .login-container {
             display: flex;
             align-items: center;
@@ -221,14 +226,20 @@
             margin: 16px 0;
         }
         .backup-item {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             margin-bottom: 8px;
             cursor: pointer;
             transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .backup-item:hover { background: #f1f5f9; border-color: #1a73e8; }
+        .backup-info { flex: 1; }
+        .restore-btn { background: #1a73e8; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        .restore-btn:hover { background: #1557b0; }
     </style>
 </head>
 <body>
@@ -237,12 +248,12 @@
     <div class="login-card">
         <div class="logo-icon" style="margin: 0 auto 20px; width: 70px; height: 70px; font-size: 34px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-shield-alt"></i></div>
         <h2 style="font-size: 2rem; margin-bottom: 8px;">IronVault Drive</h2>
-        <p style="margin: 12px 0 24px; color: #64748b;">AES-256 encrypted vault + Real Google Drive Backup</p>
+        <p style="margin: 12px 0 24px; color: #64748b;">AES-256 encrypted vault • Backup & Restore .ivault files</p>
         <input type="password" id="loginPassword" class="form-input" placeholder="Master password" onkeypress="if(event.key==='Enter')unlockMainVault()">
         <button class="btn-drive btn-drive-primary" style="width: 100%; margin-top: 12px;" onclick="unlockMainVault()"><i class="fas fa-unlock-alt"></i> Unlock Vault</button>
         <button class="btn-drive btn-drive-outline" style="width: 100%; margin-top: 12px;" onclick="showCreateVaultFlow()"><i class="fas fa-plus-circle"></i> Create new vault</button>
         <div class="session-panel" style="margin-top: 28px; background:#f8fafc; justify-content: center; font-size: 0.7rem;">
-            <i class="fab fa-google-drive"></i> Real Google Drive integration • Sign in to backup
+            <i class="fas fa-database"></i> Local encrypted storage • Backup to .ivault files
         </div>
     </div>
 </div>
@@ -255,12 +266,9 @@
             <div class="brand"><h2>IronVault Drive</h2></div>
         </div>
         <div class="drive-actions">
-            <div id="gdriveStatusBadge" class="gdrive-badge" onclick="initGoogleDrive()">
-                <i class="fab fa-google-drive"></i> <span id="gdriveStatusText">Sign in with Google</span>
-            </div>
             <div id="sessionBadge" class="status-chip"><i class="fas fa-fingerprint"></i> Session Active</div>
             <button class="btn-drive btn-drive-outline" onclick="showChangePasswordModal()"><i class="fas fa-key"></i> Change PW</button>
-            <button class="btn-drive btn-drive-outline" onclick="lockVaultAndLogout()"><i class="fas fa-sign-out-alt"></i> Lock</button>
+            <button class="btn-drive btn-danger" onclick="lockVaultAndLogout()"><i class="fas fa-sign-out-alt"></i> Lock</button>
         </div>
     </div>
     <div class="main-container">
@@ -271,9 +279,9 @@
         </div>
         <div class="session-panel">
             <i class="fas fa-info-circle"></i> <span id="sessionInfo">🔐 Vault unlocked • AES-256 • Paste images/videos (Ctrl+V)</span>
-            <button class="btn-drive-outline" style="margin-left: auto; padding: 4px 12px;" onclick="backupToGoogleDrive()"><i class="fab fa-google-drive"></i> Backup to Drive</button>
-            <button class="btn-drive-outline" style="padding: 4px 12px;" onclick="showRestoreFromDriveModal()"><i class="fas fa-undo-alt"></i> Restore from Drive</button>
-            <button class="btn-drive-outline" style="padding: 4px 12px;" onclick="listDriveBackups()"><i class="fas fa-list"></i> List Backups</button>
+            <button class="btn-drive-outline" style="margin-left: auto; padding: 4px 12px;" onclick="exportVaultToFile()"><i class="fas fa-download"></i> Backup (.ivault)</button>
+            <button class="btn-drive-outline" style="padding: 4px 12px;" onclick="showRestoreModal()"><i class="fas fa-upload"></i> Restore (.ivault)</button>
+            <button class="btn-drive-outline" style="padding: 4px 12px;" onclick="showLocalBackups()"><i class="fas fa-history"></i> Local Backups</button>
         </div>
 
         <div class="upload-zone-drive" id="uploadZone" onclick="document.getElementById('bulkFileInput').click()">
@@ -336,33 +344,33 @@
     </div>
 </div>
 
-<div id="restoreDriveModal" class="modal-overlay">
+<div id="restoreModal" class="modal-overlay">
     <div class="modal-card-drive">
-        <h3><i class="fab fa-google-drive"></i> Restore from Google Drive</h3>
-        <p class="text-small">Select a backup file from your Google Drive to restore:</p>
-        <div id="backupFilesList" class="backup-list">
-            <p class="text-small" style="text-align: center;">Click "List Backups" first</p>
-        </div>
-        <button class="btn-drive btn-drive-outline" onclick="closeModal('restoreDriveModal')">Cancel</button>
+        <h3><i class="fas fa-upload"></i> Restore from .ivault Backup</h3>
+        <p class="text-small">Select an encrypted .ivault backup file to restore your vault.</p>
+        <input type="file" id="restoreFileInput" accept=".ivault" class="form-input">
+        <div class="warning-text" style="margin: 10px 0;">⚠️ Warning: Restoring will replace ALL current data in your vault!</div>
+        <button class="btn-drive btn-drive-primary" onclick="restoreFromBackupFile()">Restore Vault</button>
+        <button class="btn-drive btn-drive-outline" onclick="closeModal('restoreModal')">Cancel</button>
     </div>
 </div>
 
-<script src="https://apis.google.com/js/api.js"></script>
+<div id="localBackupsModal" class="modal-overlay">
+    <div class="modal-card-drive">
+        <h3><i class="fas fa-history"></i> Local Backup History</h3>
+        <div id="localBackupsList" class="backup-list">
+            <p class="text-small" style="text-align: center;">No backups found. Click "Backup (.ivault)" to create one.</p>
+        </div>
+        <button class="btn-drive btn-drive-outline" onclick="closeModal('localBackupsModal')">Close</button>
+    </div>
+</div>
+
 <script>
     // ==================== CRYPTO CORE ====================
     let activeKey = null;
     let vaultItems = [];
     let currentSearch = "";
     let currentSort = "date";
-    let gapiInited = false;
-    let tokenClient = null;
-    let gisInited = false;
-    let accessToken = null;
-
-    // Google Drive API Configuration - You need to replace with your own credentials
-    const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'; // REPLACE THIS
-    const API_KEY = 'YOUR_GOOGLE_API_KEY'; // REPLACE THIS
-    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
     async function deriveKey(pw, salt) {
         const enc = new TextEncoder();
@@ -383,11 +391,15 @@
     }
 
     async function decryptBlob(enc, key) {
-        return await crypto.subtle.decrypt(
-            { name: 'AES-GCM', iv: new Uint8Array(enc.iv) },
-            key,
-            new Uint8Array(enc.data)
-        );
+        try {
+            return await crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv: new Uint8Array(enc.iv) },
+                key,
+                new Uint8Array(enc.data)
+            );
+        } catch(e) {
+            throw new Error("Decryption failed - wrong password or corrupted data");
+        }
     }
 
     // IndexedDB
@@ -508,6 +520,7 @@
         
         try {
             const key = await deriveKey(pwd, metaData.salt);
+            // Test decryption
             await decryptBlob(metaData.metaEnc, key);
             activeKey = key;
             vaultItems = await loadAllItems();
@@ -523,45 +536,10 @@
         }
     }
 
-    // ==================== REAL GOOGLE DRIVE INTEGRATION ====================
-    function initGoogleDrive() {
-        if (accessToken) {
-            // Already signed in, sign out
-            accessToken = null;
-            localStorage.removeItem('gdrive_token');
-            updateGDriveUI(false);
-            toast("Signed out from Google Drive", "info");
-            return;
-        }
-        
-        // For demo purposes, show instructions since real OAuth requires client ID
-        // In production, you would use Google Identity Services
-        toast("📌 REAL Google Drive Integration: To use, replace CLIENT_ID and API_KEY with your Google Cloud credentials. For now, using demo mode with file download/upload simulation.", "info");
-        
-        // Simulated sign-in for demo
-        simulateDriveSignIn();
-    }
+    // ==================== BACKUP & RESTORE (FIXED) ====================
     
-    function simulateDriveSignIn() {
-        accessToken = "demo_token_" + Date.now();
-        localStorage.setItem('gdrive_token', accessToken);
-        updateGDriveUI(true);
-        toast("✅ Demo: Google Drive connected! In production, this would use real OAuth.", "success");
-    }
-    
-    function updateGDriveUI(connected) {
-        const badge = document.getElementById('gdriveStatusBadge');
-        const textSpan = document.getElementById('gdriveStatusText');
-        if (connected || accessToken) {
-            textSpan.innerText = "Google Drive ✓";
-            badge.style.background = "#e6f4ea";
-        } else {
-            textSpan.innerText = "Sign in with Google";
-            badge.style.background = "#e9f0ff";
-        }
-    }
-    
-    async function backupToGoogleDrive() {
+    // Export vault to .ivault file
+    async function exportVaultToFile() {
         if (!activeKey) {
             toast("Unlock vault first", "error");
             return;
@@ -569,15 +547,29 @@
         
         showBackupProgress(true, "Creating encrypted backup...");
         try {
-            const exportData = vaultItems.map(f => ({
-                id: f.id, name: f.name, type: f.type, size: f.size,
-                encryptedData: f.encryptedData, uploadedAt: f.uploadedAt, isNote: f.isNote
-            }));
-            const encryptedBackup = await encryptBlob(new TextEncoder().encode(JSON.stringify(exportData)), activeKey);
+            // Prepare data for backup (excluding encryption keys, just the encrypted items)
+            const exportData = {
+                version: 2,
+                timestamp: Date.now(),
+                items: vaultItems.map(f => ({
+                    id: f.id,
+                    name: f.name,
+                    type: f.type,
+                    size: f.size,
+                    encryptedData: f.encryptedData,
+                    uploadedAt: f.uploadedAt,
+                    isNote: f.isNote
+                }))
+            };
+            
+            // Encrypt the entire backup with the current master key
+            const backupJson = JSON.stringify(exportData);
+            const encryptedBackup = await encryptBlob(new TextEncoder().encode(backupJson), activeKey);
+            
+            // Create and download file
             const backupBlob = new Blob([JSON.stringify(encryptedBackup)], { type: 'application/json' });
             const fileName = `ironvault_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.ivault`;
             
-            // Download the backup file (simulating Google Drive upload)
             const url = URL.createObjectURL(backupBlob);
             const a = document.createElement('a');
             a.href = url;
@@ -585,14 +577,12 @@
             a.click();
             URL.revokeObjectURL(url);
             
-            // Save to localStorage as well to simulate Drive storage
-            const backups = JSON.parse(localStorage.getItem('drive_backups') || '[]');
-            backups.push({ name: fileName, date: Date.now(), data: encryptedBackup });
-            localStorage.setItem('drive_backups', JSON.stringify(backups));
+            // Save to local backups list
+            saveBackupToLocalList(fileName, encryptedBackup);
             localStorage.setItem('lastBackupTime', Date.now().toString());
             document.getElementById('lastBackupStatus').innerText = new Date().toLocaleString();
             
-            toast(`✅ Backup saved as "${fileName}". Upload this file to your Google Drive for cloud storage.`, "success");
+            toast(`✅ Backup saved as "${fileName}"`, "success");
         } catch(e) {
             toast("Backup failed: " + e.message, "error");
         } finally {
@@ -600,53 +590,124 @@
         }
     }
     
-    async function listDriveBackups() {
-        const backups = JSON.parse(localStorage.getItem('drive_backups') || '[]');
-        const listContainer = document.getElementById('backupFilesList');
+    // Save backup reference locally
+    function saveBackupToLocalList(fileName, backupData) {
+        const backups = JSON.parse(localStorage.getItem('local_backups') || '[]');
+        backups.push({
+            name: fileName,
+            date: Date.now(),
+            data: backupData
+        });
+        // Keep only last 10 backups
+        while (backups.length > 10) backups.shift();
+        localStorage.setItem('local_backups', JSON.stringify(backups));
+    }
+    
+    // Show local backups
+    function showLocalBackups() {
+        const backups = JSON.parse(localStorage.getItem('local_backups') || '[]');
+        const listContainer = document.getElementById('localBackupsList');
         
         if (backups.length === 0) {
-            listContainer.innerHTML = '<p class="text-small" style="text-align: center;">No backups found. Click "Backup to Drive" first.</p>';
+            listContainer.innerHTML = '<p class="text-small" style="text-align: center;">No backups found. Click "Backup (.ivault)" to create one.</p>';
         } else {
             listContainer.innerHTML = backups.map((b, idx) => `
-                <div class="backup-item" onclick="restoreSpecificBackup(${idx})">
-                    <div><strong>${b.name}</strong></div>
-                    <div class="text-small">${new Date(b.date).toLocaleString()}</div>
+                <div class="backup-item">
+                    <div class="backup-info">
+                        <div><strong>${b.name}</strong></div>
+                        <div class="text-small">${new Date(b.date).toLocaleString()}</div>
+                    </div>
+                    <div>
+                        <button class="restore-btn" onclick="restoreFromLocalBackup(${idx})">Restore</button>
+                    </div>
                 </div>
             `).join('');
         }
         
-        document.getElementById('restoreDriveModal').classList.add('show');
+        document.getElementById('localBackupsModal').classList.add('show');
     }
     
-    async function restoreSpecificBackup(index) {
-        const backups = JSON.parse(localStorage.getItem('drive_backups') || '[]');
+    // Restore from local backup
+    async function restoreFromLocalBackup(index) {
+        const backups = JSON.parse(localStorage.getItem('local_backups') || '[]');
         if (!backups[index]) return;
         
-        if (!confirm(`Restore from "${backups[index].name}"? This will replace your current vault.`)) return;
+        if (!confirm(`Restore from "${backups[index].name}"? This will replace ALL current data in your vault.`)) return;
         
-        showBackupProgress(true, "Restoring from backup...");
+        await performRestore(backups[index].data);
+    }
+    
+    // Restore from uploaded .ivault file
+    async function restoreFromBackupFile() {
+        const fileInput = document.getElementById('restoreFileInput');
+        if (!fileInput.files.length) {
+            toast("Please select a .ivault backup file", "error");
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        if (!file.name.endsWith('.ivault')) {
+            toast("Invalid backup file format. Please select a .ivault file.", "error");
+            return;
+        }
+        
+        if (!confirm(`Restore from "${file.name}"? This will replace ALL current data in your vault.`)) return;
+        
+        showBackupProgress(true, "Reading backup file...");
         try {
-            const decrypted = await decryptBlob(backups[index].data, activeKey);
-            const restoredItems = JSON.parse(new TextDecoder().decode(decrypted));
-            
-            await clearAllItems();
-            for (const item of restoredItems) {
-                await saveItem(item);
-            }
-            vaultItems = restoredItems;
-            renderGrid();
-            updateStatsUI();
-            closeModal('restoreDriveModal');
-            toast("✅ Vault restored successfully!", "success");
-        } catch(err) {
-            toast("Restore failed: " + err.message, "error");
+            const fileContent = await file.text();
+            const backupData = JSON.parse(fileContent);
+            await performRestore(backupData);
+            closeModal('restoreModal');
+            fileInput.value = '';
+        } catch(e) {
+            toast("Restore failed: " + e.message, "error");
         } finally {
             showBackupProgress(false);
         }
     }
     
-    function showRestoreFromDriveModal() {
-        listDriveBackups();
+    // Core restore logic
+    async function performRestore(encryptedBackup) {
+        if (!activeKey) {
+            toast("Vault is locked. Please unlock first.", "error");
+            return;
+        }
+        
+        showBackupProgress(true, "Decrypting and restoring backup...");
+        try {
+            // Decrypt the backup
+            const decrypted = await decryptBlob(encryptedBackup, activeKey);
+            const backupData = JSON.parse(new TextDecoder().decode(decrypted));
+            
+            // Validate backup structure
+            if (!backupData.items || !Array.isArray(backupData.items)) {
+                throw new Error("Invalid backup file structure");
+            }
+            
+            // Clear existing items
+            await clearAllItems();
+            
+            // Restore items
+            for (const item of backupData.items) {
+                await saveItem(item);
+            }
+            
+            vaultItems = backupData.items;
+            renderGrid();
+            updateStatsUI();
+            
+            toast(`✅ Vault restored successfully! ${vaultItems.length} items recovered.`, "success");
+        } catch(err) {
+            toast("Restore failed: " + err.message, "error");
+            throw err;
+        } finally {
+            showBackupProgress(false);
+        }
+    }
+    
+    function showRestoreModal() {
+        document.getElementById('restoreModal').classList.add('show');
     }
 
     // File handling
@@ -673,7 +734,7 @@
         };
         await saveItem(newItem);
         vaultItems.push(newItem);
-        toast(`🔒 "${file.name}" stored`, "success");
+        toast(`🔒 "${file.name}" stored securely`, "success");
     }
 
     async function saveSecureNote() {
@@ -740,13 +801,27 @@
                 const blob = new Blob([dec], { type: item.type });
                 const url = URL.createObjectURL(blob);
                 const win = window.open();
-                win.document.write(`<img src="${url}" style="max-width:100%; margin: 20px auto; display: block;">`);
+                win.document.write(`
+                    <html>
+                        <head><title>${item.name}</title></head>
+                        <body style="display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; background:#1a1a2e;">
+                            <img src="${url}" style="max-width:90%; max-height:90vh; border-radius:12px;">
+                        </body>
+                    </html>
+                `);
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
             } else if (item.type && item.type.startsWith('video/')) {
                 const blob = new Blob([dec], { type: item.type });
                 const url = URL.createObjectURL(blob);
                 const win = window.open();
-                win.document.write(`<video controls autoplay style="max-width:100%" src="${url}"></video>`);
+                win.document.write(`
+                    <html>
+                        <head><title>${item.name}</title></head>
+                        <body style="display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; background:#1a1a2e;">
+                            <video controls autoplay style="max-width:90%; max-height:90vh; border-radius:12px;" src="${url}"></video>
+                        </body>
+                    </html>
+                `);
             } else {
                 toast("Preview only supports images, videos, and notes", "info");
             }
@@ -786,6 +861,7 @@
             const newEncMeta = await encryptBlob(oldMetaDec, newKey);
             await storeVaultMeta(newSalt, newEncMeta);
             
+            // Re-encrypt all items with new key
             for (let item of vaultItems) {
                 const decrypted = await decryptBlob(item.encryptedData, oldKey);
                 const newEnc = await encryptBlob(decrypted, newKey);
@@ -798,7 +874,7 @@
             document.getElementById('oldPw').value = '';
             document.getElementById('newPw1').value = '';
             document.getElementById('newPw2').value = '';
-            toast("✅ Password changed successfully!", "success");
+            toast("✅ Password changed successfully! All data re-encrypted.", "success");
         } catch(e) {
             toast("Current password is incorrect", "error");
         }
@@ -936,6 +1012,7 @@
                         updateStatsUI();
                         toast(`📋 Pasted image saved`, "success");
                     }
+                    break;
                 }
             }
         });
@@ -955,7 +1032,7 @@
     window.downloadItemProxy = downloadItem;
     window.deleteItemProxy = deleteItem;
     window.handleFileUpload = handleFileUpload;
-    window.restoreSpecificBackup = restoreSpecificBackup;
+    window.restoreFromLocalBackup = restoreFromLocalBackup;
 
     // Drag and drop
     document.addEventListener('dragover', (e) => e.preventDefault());
@@ -966,12 +1043,13 @@
         }
     });
 
-    // Load token on startup
-    const savedToken = localStorage.getItem('gdrive_token');
-    if (savedToken) {
-        accessToken = savedToken;
-        updateGDriveUI(true);
-    }
+    // Check for existing vault on load
+    window.onload = async () => {
+        const meta = await getVaultMeta();
+        if (!meta) {
+            toast("Welcome! Create a new vault to get started.", "info");
+        }
+    };
 </script>
 </body>
 </html>
