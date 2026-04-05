@@ -13,7 +13,6 @@
             background: #f8fafd;
             color: #1e293b;
         }
-        /* Google Drive style layout */
         .drive-header {
             background: white;
             border-bottom: 1px solid #e2e8f0;
@@ -50,6 +49,7 @@
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .btn-drive {
             background: transparent;
@@ -80,7 +80,6 @@
             gap: 8px;
         }
         .main-container { max-width: 1600px; margin: 0 auto; padding: 24px 32px; }
-        /* breadcrumb & toolbar */
         .toolbar {
             display: flex;
             justify-content: space-between;
@@ -156,6 +155,7 @@
             justify-content: center;
             z-index: 1000;
         }
+        .modal-overlay.show { display: flex; }
         .modal-card-drive {
             background: white;
             border-radius: 32px;
@@ -164,7 +164,7 @@
             padding: 28px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.2);
         }
-        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 28px; margin: 10px 0; outline: none; }
+        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 28px; margin: 10px 0; outline: none; font-family: inherit; }
         .toast-message {
             position: fixed;
             bottom: 24px;
@@ -176,28 +176,49 @@
             z-index: 1100;
             font-size: 0.85rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         .session-panel { background: #f1f5f9; border-radius: 28px; padding: 12px 20px; font-size: 0.75rem; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
         .gdrive-badge { background: #e9f0ff; border-radius: 60px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 500; }
-        hr { margin: 16px 0; border-color: #eef2f6; }
         .text-small { font-size: 0.7rem; color: #475569; }
+        .warning-text { color: #dc2626; font-size: 0.7rem; margin-top: 4px; }
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-card {
+            background: white;
+            border-radius: 48px;
+            padding: 44px 36px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
 
-<div id="loginContainer" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f1f5f9;">
-    <div style="background: white; border-radius: 48px; padding: 44px 36px; max-width: 480px; text-align: center; box-shadow: 0 20px 35px -8px rgba(0,0,0,0.1);">
-        <div class="logo-icon" style="margin: 0 auto 20px; width: 70px; height: 70px; font-size: 34px;"><i class="fas fa-shield-alt"></i></div>
-        <h2 style="font-size: 2rem;">IronVault Drive</h2>
-        <p style="margin: 12px 0 24px;">AES-256 encrypted vault + Google Drive backup (.ivault only)</p>
+<div id="loginContainer" class="login-container">
+    <div class="login-card">
+        <div class="logo-icon" style="margin: 0 auto 20px; width: 70px; height: 70px; font-size: 34px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-shield-alt"></i></div>
+        <h2 style="font-size: 2rem; margin-bottom: 8px;">IronVault Drive</h2>
+        <p style="margin: 12px 0 24px; color: #64748b;">AES-256 encrypted vault + Google Drive backup</p>
         <input type="password" id="loginPassword" class="form-input" placeholder="Master password" onkeypress="if(event.key==='Enter')unlockMainVault()">
         <button class="btn-drive btn-drive-primary" style="width: 100%; margin-top: 12px;" onclick="unlockMainVault()"><i class="fas fa-unlock-alt"></i> Unlock Vault</button>
         <button class="btn-drive btn-drive-outline" style="width: 100%; margin-top: 12px;" onclick="showCreateVaultFlow()"><i class="fas fa-plus-circle"></i> Create new vault</button>
-        <div class="session-panel" style="margin-top: 28px; background:#f8fafc; justify-content: center;"><i class="fas fa-cloud-upload-alt"></i> Google Drive backup ready after unlock</div>
+        <div class="session-panel" style="margin-top: 28px; background:#f8fafc; justify-content: center; font-size: 0.7rem;"><i class="fas fa-cloud-upload-alt"></i> Google Drive backup ready after unlock</div>
     </div>
 </div>
 
-<!-- MAIN VAULT UI (Google Drive Style) -->
+<!-- MAIN VAULT UI -->
 <div id="vaultMainUI" style="display: none;">
     <div class="drive-header">
         <div class="logo-area">
@@ -219,7 +240,7 @@
         </div>
         <div class="session-panel">
             <i class="fas fa-info-circle"></i> <span id="sessionInfo">🔐 Vault unlocked • AES-256 • Paste images/videos (Ctrl+V)</span>
-            <button class="btn-drive-outline" style="margin-left: auto; padding: 4px 12px;" onclick="manualBackupToDrive()"><i class="fab fa-google-drive"></i> Backup to Drive (.ivault)</button>
+            <button class="btn-drive-outline" style="margin-left: auto; padding: 4px 12px;" onclick="manualBackupToDrive()"><i class="fab fa-google-drive"></i> Backup to Drive</button>
             <button class="btn-drive-outline" style="padding: 4px 12px;" onclick="showRestoreFromDriveModal()"><i class="fas fa-undo-alt"></i> Restore from Drive</button>
             <button class="btn-drive-outline" style="padding: 4px 12px;" id="linkGdriveBtn" onclick="linkGoogleDrive()"><i class="fab fa-google"></i> Link GDrive</button>
         </div>
@@ -234,89 +255,695 @@
         <div class="toolbar">
             <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search files or notes..." onkeyup="filterAndRender()"></div>
             <div style="display: flex; gap: 12px;">
-                <select id="sortSelect" class="form-input" style="width: auto; background: white;" onchange="filterAndRender()"><option value="date">📅 Latest</option><option value="name">🔤 Name</option><option value="size">📦 Size</option></select>
+                <select id="sortSelect" class="form-input" style="width: auto; background: white;" onchange="filterAndRender()">
+                    <option value="date">📅 Latest</option>
+                    <option value="name">🔤 Name</option>
+                    <option value="size">📦 Size</option>
+                </select>
                 <button class="btn-drive btn-drive-outline" onclick="showSecureNoteModal()"><i class="fas fa-sticky-note"></i> New Note</button>
             </div>
         </div>
 
         <div id="fileGrid" class="grid-view"></div>
-        <div id="backupProgressArea" style="margin-top: 20px; display: none;"><div style="background:#e2e8f0; border-radius: 20px; height: 6px;"><div id="backupProgressFill" style="width:0%; background:#1a73e8; height:6px; border-radius:20px;"></div></div><div id="backupMsg" class="text-small" style="margin-top: 6px;"></div></div>
+        <div id="backupProgressArea" style="margin-top: 20px; display: none;">
+            <div style="background:#e2e8f0; border-radius: 20px; height: 6px;"><div id="backupProgressFill" style="width:0%; background:#1a73e8; height:6px; border-radius:20px;"></div></div>
+            <div id="backupMsg" class="text-small" style="margin-top: 6px;"></div>
+        </div>
     </div>
 </div>
 
 <!-- Modals -->
-<div id="createVaultModal" class="modal-overlay"><div class="modal-card-drive"><h3><i class="fas fa-plus-circle"></i> Create New Vault</h3><input type="password" id="newPw" class="form-input" placeholder="Master password (min 8 chars)"><input type="password" id="confirmPw" class="form-input" placeholder="Confirm"><button class="btn-drive btn-drive-primary" style="width:100%;" onclick="createNewVault()">Create encrypted vault</button><button class="btn-drive btn-drive-outline" style="width:100%; margin-top: 10px;" onclick="closeModal('createVaultModal')">Cancel</button></div></div>
-<div id="noteModal" class="modal-overlay"><div class="modal-card-drive"><h3><i class="fas fa-lock"></i> Secure Note</h3><input type="text" id="noteTitleInput" class="form-input" placeholder="Title"><textarea id="noteBodyInput" rows="4" class="form-input" placeholder="Encrypted content..."></textarea><button class="btn-drive btn-drive-primary" onclick="saveSecureNote()">Save Encrypted</button><button class="btn-drive btn-drive-outline" onclick="closeModal('noteModal')">Cancel</button></div></div>
-<div id="changePwModal" class="modal-overlay"><div class="modal-card-drive"><h3>Change Master Password</h3><input type="password" id="oldPw" class="form-input" placeholder="Current password"><input type="password" id="newPw1" class="form-input" placeholder="New password (min 8)"><input type="password" id="newPw2" class="form-input" placeholder="Confirm new"><button class="btn-drive btn-drive-primary" onclick="changeMasterPassword()">Update password</button><button class="btn-drive btn-drive-outline" onclick="closeModal('changePwModal')">Cancel</button></div></div>
-<div id="restoreDriveModal" class="modal-overlay"><div class="modal-card-drive"><h3><i class="fab fa-google-drive"></i> Restore from Google Drive</h3><p class="text-small">This will replace current vault with a previously backed up .ivault file from your Google Drive root.</p><button class="btn-drive btn-drive-primary" onclick="restoreFromDriveFile()">Fetch & Restore</button><button class="btn-drive btn-drive-outline" onclick="closeModal('restoreDriveModal')">Cancel</button></div></div>
+<div id="createVaultModal" class="modal-overlay">
+    <div class="modal-card-drive">
+        <h3><i class="fas fa-plus-circle"></i> Create New Vault</h3>
+        <input type="password" id="newPw" class="form-input" placeholder="Master password (min 8 chars)">
+        <input type="password" id="confirmPw" class="form-input" placeholder="Confirm password">
+        <div class="warning-text" id="pwWarning"></div>
+        <button class="btn-drive btn-drive-primary" style="width:100%; margin-top: 10px;" onclick="createNewVault()">Create encrypted vault</button>
+        <button class="btn-drive btn-drive-outline" style="width:100%; margin-top: 10px;" onclick="closeModal('createVaultModal')">Cancel</button>
+    </div>
+</div>
+
+<div id="noteModal" class="modal-overlay">
+    <div class="modal-card-drive">
+        <h3><i class="fas fa-lock"></i> Secure Note</h3>
+        <input type="text" id="noteTitleInput" class="form-input" placeholder="Title">
+        <textarea id="noteBodyInput" rows="4" class="form-input" placeholder="Encrypted content..."></textarea>
+        <button class="btn-drive btn-drive-primary" onclick="saveSecureNote()">Save Encrypted</button>
+        <button class="btn-drive btn-drive-outline" onclick="closeModal('noteModal')">Cancel</button>
+    </div>
+</div>
+
+<div id="changePwModal" class="modal-overlay">
+    <div class="modal-card-drive">
+        <h3>Change Master Password</h3>
+        <input type="password" id="oldPw" class="form-input" placeholder="Current password">
+        <input type="password" id="newPw1" class="form-input" placeholder="New password (min 8)">
+        <input type="password" id="newPw2" class="form-input" placeholder="Confirm new">
+        <button class="btn-drive btn-drive-primary" onclick="changeMasterPassword()">Update password</button>
+        <button class="btn-drive btn-drive-outline" onclick="closeModal('changePwModal')">Cancel</button>
+    </div>
+</div>
+
+<div id="restoreDriveModal" class="modal-overlay">
+    <div class="modal-card-drive">
+        <h3><i class="fab fa-google-drive"></i> Restore from Google Drive</h3>
+        <p class="text-small">Select a previously backed up .ivault file from your computer to restore.</p>
+        <input type="file" id="restoreFileInput" accept=".ivault" class="form-input">
+        <button class="btn-drive btn-drive-primary" onclick="restoreFromDriveFile()">Restore Vault</button>
+        <button class="btn-drive btn-drive-outline" onclick="closeModal('restoreDriveModal')">Cancel</button>
+    </div>
+</div>
 
 <script>
-    // ---------- CRYPTO CORE ----------
+    // ==================== CRYPTO CORE ====================
     let activeKey = null;
-    let vaultItems = [];     // each: { id, name, type, size, encryptedData, uploadedAt, isNote, notePreview? }
+    let vaultItems = [];
     let currentSearch = "";
     let currentSort = "date";
-    let gDriveToken = null;  // simulated google drive OAuth token (client-side)
-    const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID";  // In real world you'd replace, for demo we use instruction popup
-    let gapiInited = false;
+    let gDriveToken = null;
 
-    // helper: derive key
-    async function deriveKey(pw, salt) { const enc = new TextEncoder(); const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']); return await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 210000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
-    async function encryptBlob(data, key) { const iv = crypto.getRandomValues(new Uint8Array(12)); const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data); return { iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) }; }
-    async function decryptBlob(enc, key) { return await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(enc.iv) }, key, new Uint8Array(enc.data)); }
+    async function deriveKey(pw, salt) {
+        const enc = new TextEncoder();
+        const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+        return await crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt, iterations: 210000, hash: 'SHA-256' },
+            base,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+    }
+
+    async function encryptBlob(data, key) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+        return { iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) };
+    }
+
+    async function decryptBlob(enc, key) {
+        return await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: new Uint8Array(enc.iv) },
+            key,
+            new Uint8Array(enc.data)
+        );
+    }
 
     // IndexedDB
-    function openDB() { return new Promise((res,rej)=>{ const req=indexedDB.open('IronVaultDriveDB',4); req.onerror=()=>rej(req.error); req.onsuccess=()=>res(req.result); req.onupgradeneeded=e=>{ if(!e.target.result.objectStoreNames.contains('items')) e.target.result.createObjectStore('items',{keyPath:'id'}); }; }); }
-    async function saveItem(item) { const db=await openDB(); return new Promise((res,rej)=>{ const tx=db.transaction('items','readwrite'); tx.objectStore('items').put(item); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
-    async function loadAllItems() { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('items').objectStore('items').getAll(); req.onsuccess=()=>res(req.result||[]); req.onerror=()=>rej(req.error); }); }
-    async function deleteItemDB(id) { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('items','readwrite').objectStore('items').delete(id); req.onsuccess=res; req.onerror=()=>rej(req.error); }); }
-    async function clearAllItems() { const db=await openDB(); return new Promise((res,rej)=>{ const req=db.transaction('items','readwrite').objectStore('items').clear(); req.onsuccess=res; req.onerror=()=>rej(req.error); }); }
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('IronVaultDriveDB', 4);
+            req.onerror = () => reject(req.error);
+            req.onsuccess = () => resolve(req.result);
+            req.onupgradeneeded = (e) => {
+                if (!e.target.result.objectStoreNames.contains('items')) {
+                    e.target.result.createObjectStore('items', { keyPath: 'id' });
+                }
+            };
+        });
+    }
+
+    async function saveItem(item) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('items', 'readwrite');
+            tx.objectStore('items').put(item);
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    async function loadAllItems() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const req = db.transaction('items').objectStore('items').getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function deleteItemDB(id) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('items', 'readwrite');
+            tx.objectStore('items').delete(id);
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    async function clearAllItems() {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('items', 'readwrite');
+            tx.objectStore('items').clear();
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+    }
 
     // Vault meta storage
-    async function storeVaultMeta(salt, encMeta) { localStorage.setItem('drive_vault_salt', JSON.stringify(Array.from(salt))); localStorage.setItem('drive_vault_meta', JSON.stringify(encMeta)); }
-    async function getVaultMeta() { const saltRaw=localStorage.getItem('drive_vault_salt'); const metaRaw=localStorage.getItem('drive_vault_meta'); if(!saltRaw||!metaRaw) return null; return { salt:new Uint8Array(JSON.parse(saltRaw)), metaEnc:JSON.parse(metaRaw) }; }
+    async function storeVaultMeta(salt, encMeta) {
+        localStorage.setItem('drive_vault_salt', JSON.stringify(Array.from(salt)));
+        localStorage.setItem('drive_vault_meta', JSON.stringify(encMeta));
+    }
 
-    async function createNewVault() { const pwd=document.getElementById('newPw').value; const conf=document.getElementById('confirmPw').value; if(pwd.length<8){toast("Password min 8 chars","error");return;} if(pwd!==conf){toast("Mismatch","error");return;} const salt=crypto.getRandomValues(new Uint8Array(16)); const key=await deriveKey(pwd,salt); const meta={created:Date.now()}; const encMeta=await encryptBlob(new TextEncoder().encode(JSON.stringify(meta)),key); await storeVaultMeta(salt,encMeta); localStorage.removeItem('gdrive_token'); toast("Vault created! Unlock with password.","success"); closeModal('createVaultModal'); document.getElementById('loginPassword').value=pwd; unlockMainVault(); }
-    async function unlockMainVault() { const pwd=document.getElementById('loginPassword').value; const metaData=await getVaultMeta(); if(!metaData){toast("No vault found. Create one.","error");return;} try{ const key=await deriveKey(pwd,metaData.salt); await decryptBlob(metaData.metaEnc,key); activeKey=key; vaultItems=await loadAllItems(); document.getElementById('loginContainer').style.display='none'; document.getElementById('vaultMainUI').style.display='block'; renderGrid(); updateStatsUI(); attachPasteHandler(); loadGDriveTokenFromStorage(); updateGDriveUI(); toast("Vault unlocked! Google Drive backup ready.","success"); }catch(e){toast("Wrong password","error");} }
+    async function getVaultMeta() {
+        const saltRaw = localStorage.getItem('drive_vault_salt');
+        const metaRaw = localStorage.getItem('drive_vault_meta');
+        if (!saltRaw || !metaRaw) return null;
+        return { salt: new Uint8Array(JSON.parse(saltRaw)), metaEnc: JSON.parse(metaRaw) };
+    }
+
+    // Create New Vault (FIXED)
+    async function createNewVault() {
+        const pwd = document.getElementById('newPw').value;
+        const conf = document.getElementById('confirmPw').value;
+        const warning = document.getElementById('pwWarning');
+        
+        if (pwd.length < 8) {
+            warning.innerText = "Password must be at least 8 characters";
+            return;
+        }
+        if (pwd !== conf) {
+            warning.innerText = "Passwords do not match";
+            return;
+        }
+        
+        warning.innerText = "";
+        
+        try {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const key = await deriveKey(pwd, salt);
+            const meta = { created: Date.now(), version: 2 };
+            const encMeta = await encryptBlob(new TextEncoder().encode(JSON.stringify(meta)), key);
+            await storeVaultMeta(salt, encMeta);
+            
+            // Clear any existing items
+            await clearAllItems();
+            
+            closeModal('createVaultModal');
+            document.getElementById('newPw').value = '';
+            document.getElementById('confirmPw').value = '';
+            
+            toast("✅ Vault created successfully! You can now unlock with your password.", "success");
+            
+            // Auto-fill password and unlock
+            document.getElementById('loginPassword').value = pwd;
+            await unlockMainVault();
+        } catch (error) {
+            console.error(error);
+            toast("Error creating vault: " + error.message, "error");
+        }
+    }
+
+    async function unlockMainVault() {
+        const pwd = document.getElementById('loginPassword').value;
+        if (!pwd) {
+            toast("Please enter your master password", "error");
+            return;
+        }
+        
+        const metaData = await getVaultMeta();
+        if (!metaData) {
+            toast("No vault found. Please create a new vault first.", "error");
+            return;
+        }
+        
+        try {
+            const key = await deriveKey(pwd, metaData.salt);
+            // Test decryption
+            await decryptBlob(metaData.metaEnc, key);
+            activeKey = key;
+            vaultItems = await loadAllItems();
+            
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('vaultMainUI').style.display = 'block';
+            renderGrid();
+            updateStatsUI();
+            attachPasteHandler();
+            loadGDriveTokenFromStorage();
+            updateGDriveUI();
+            toast("🔓 Vault unlocked successfully!", "success");
+        } catch(e) {
+            toast("❌ Wrong password! Please try again.", "error");
+        }
+    }
 
     // File handling
-    async function handleFileUpload(files) { if(!activeKey) return; for(let f of files) await addEncryptedFile(f); renderGrid(); updateStatsUI(); }
-    async function addEncryptedFile(file) { const buffer=await file.arrayBuffer(); const encrypted=await encryptBlob(buffer,activeKey); const newItem={ id:crypto.randomUUID(), name:file.name, type:file.type, size:file.size, encryptedData:encrypted, uploadedAt:Date.now(), isNote:false }; await saveItem(newItem); vaultItems.push(newItem); toast(`🔒 ${file.name} stored`, "success"); }
-    async function saveSecureNote() { const title=document.getElementById('noteTitleInput').value.trim(); const body=document.getElementById('noteBodyInput').value; if(!title||!body){toast("Title & body required","error");return;} const noteObj={title,body,created:Date.now()}; const encrypted=await encryptBlob(new TextEncoder().encode(JSON.stringify(noteObj)),activeKey); const noteItem={ id:crypto.randomUUID(), name:`📄 ${title}`, type:'text/note', size:body.length, encryptedData:encrypted, uploadedAt:Date.now(), isNote:true }; await saveItem(noteItem); vaultItems.push(noteItem); closeModal('noteModal'); document.getElementById('noteTitleInput').value=''; document.getElementById('noteBodyInput').value=''; renderGrid(); updateStatsUI(); toast("Secure note saved","success"); }
-    async function downloadItem(item) { try{ const dec=await decryptBlob(item.encryptedData,activeKey); const blob=new Blob([dec],{type:item.type || 'application/octet-stream'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=item.name.replace('📄 ',''); a.click(); URL.revokeObjectURL(url); }catch(e){toast("Decrypt error","error");} }
-    async function deleteItem(item) { if(!confirm(`Permanently delete "${item.name}"?`)) return; await deleteItemDB(item.id); vaultItems=vaultItems.filter(i=>i.id!==item.id); renderGrid(); updateStatsUI(); toast("Deleted","info"); }
-    async function previewItem(item) { try{ const dec=await decryptBlob(item.encryptedData,activeKey); if(item.isNote){ const note=JSON.parse(new TextDecoder().decode(dec)); alert(`📓 ${note.title}\n\n${note.body}`); } else if(item.type.startsWith('image/')){ const blob=new Blob([dec],{type:item.type}); const url=URL.createObjectURL(blob); const w=window.open(); w.document.write(`<img src="${url}" style="max-width:100%"/>`); setTimeout(()=>URL.revokeObjectURL(url),1000); } else if(item.type.startsWith('video/')){ const blob=new Blob([dec],{type:item.type}); const url=URL.createObjectURL(blob); const w=window.open(); w.document.write(`<video controls autoplay style="max-width:100%" src="${url}"></video>`); } else { toast("Preview only images/videos/notes","info"); } }catch(e){toast("Cannot decrypt","error");} }
+    async function handleFileUpload(files) {
+        if (!activeKey) return;
+        for (let f of files) {
+            await addEncryptedFile(f);
+        }
+        renderGrid();
+        updateStatsUI();
+    }
 
-    // Google Drive integration (simulate OAuth flow + upload .ivault backup file)
-    function linkGoogleDrive() { if(!activeKey){toast("Unlock vault first","error");return;} const clientIdPlaceholder="YOUR_CLIENT_ID"; toast("🔐 In production: Use Google Identity Services. For demo: manual token entry (simulated). Click OK to simulate linking", "info"); let fakeToken="demo_token_"+Date.now(); gDriveToken=fakeToken; localStorage.setItem('gdrive_token',fakeToken); updateGDriveUI(); toast("✅ Google Drive linked (demo mode). You can backup/restore .ivault files.","success"); }
-    function loadGDriveTokenFromStorage() { const t=localStorage.getItem('gdrive_token'); if(t) { gDriveToken=t; updateGDriveUI(); } }
-    function updateGDriveUI() { const badge=document.getElementById('gdriveStatusBadge'); if(gDriveToken){ badge.innerHTML=`<i class="fab fa-google-drive"></i> GDrive: Connected`; badge.style.background="#e6f4ea"; } else { badge.innerHTML=`<i class="fab fa-google-drive"></i> GDrive: Not linked`; badge.style.background="#f1f3f4"; } }
-    async function manualBackupToDrive() { if(!activeKey){toast("Unlock first","error");return;} if(!gDriveToken){toast("Please link Google Drive first","error");return;} showBackupProgress(true,"Creating encrypted backup & uploading to Drive..."); try { const exportData=vaultItems.map(f=>({id:f.id,name:f.name,type:f.type,size:f.size,encryptedData:f.encryptedData,uploadedAt:f.uploadedAt,isNote:f.isNote})); const encryptedBackup=await encryptBlob(new TextEncoder().encode(JSON.stringify(exportData)),activeKey); const backupBlob=new Blob([JSON.stringify(encryptedBackup)],{type:'application/json'}); const fileName=`ironvault_backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.ivault`; // Simulated Google Drive upload: In real we'd call Drive API. For demo we create download + alert user to upload manually? But requirement: show .ivault file only in google drive. Since we need fully automatic? For demo robust: we save file and instruct but to meet automatic we'll actually simulate via creating a download and store to local storage as "last backup" metadata, plus we show user that file is ready. For better UX, we will actually download the file and also store timestamp.
-        const url=URL.createObjectURL(backupBlob); const a=document.createElement('a'); a.href=url; a.download=fileName; a.click(); URL.revokeObjectURL(url); localStorage.setItem('lastBackupTime',Date.now().toString()); document.getElementById('lastBackupStatus').innerText=new Date().toLocaleString(); toast(`✅ Backup file "${fileName}" downloaded. In real GDrive integration, upload to your Drive root. Demo ready.`,"success"); } catch(e){toast("Backup failed","error");} finally { showBackupProgress(false); } }
-    async function restoreFromDriveFile() { if(!activeKey){toast("Unlock vault","error");return;} if(!gDriveToken){toast("Link Google Drive first","error");return;} toast("Please upload a previous .ivault backup file manually (simulated). For real integration use Drive Picker. Click OK to select file.", "info"); const input=document.createElement('input'); input.type='file'; input.accept='.ivault'; input.onchange=async(e)=>{ const file=e.target.files[0]; if(!file) return; try{ const content=await file.text(); const backup=JSON.parse(content); const decrypted=await decryptBlob({iv:backup.iv,data:backup.data},activeKey); const restoredItems=JSON.parse(new TextDecoder().decode(decrypted)); await clearAllItems(); for(const it of restoredItems) await saveItem(it); vaultItems=restoredItems; renderGrid(); updateStatsUI(); toast("Vault restored from Drive backup!","success"); closeModal('restoreDriveModal'); }catch(err){toast("Restore failed: "+err.message,"error");} }; input.click(); }
-    function showRestoreFromDriveModal(){ document.getElementById('restoreDriveModal').classList.add('show'); }
+    async function addEncryptedFile(file) {
+        const buffer = await file.arrayBuffer();
+        const encrypted = await encryptBlob(buffer, activeKey);
+        const newItem = {
+            id: crypto.randomUUID(),
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            encryptedData: encrypted,
+            uploadedAt: Date.now(),
+            isNote: false
+        };
+        await saveItem(newItem);
+        vaultItems.push(newItem);
+        toast(`🔒 "${file.name}" stored securely`, "success");
+    }
+
+    async function saveSecureNote() {
+        const title = document.getElementById('noteTitleInput').value.trim();
+        const body = document.getElementById('noteBodyInput').value;
+        if (!title || !body) {
+            toast("Please enter both title and content", "error");
+            return;
+        }
+        
+        const noteObj = { title, body, created: Date.now() };
+        const encrypted = await encryptBlob(new TextEncoder().encode(JSON.stringify(noteObj)), activeKey);
+        const noteItem = {
+            id: crypto.randomUUID(),
+            name: `📝 ${title}`,
+            type: 'text/note',
+            size: body.length,
+            encryptedData: encrypted,
+            uploadedAt: Date.now(),
+            isNote: true
+        };
+        await saveItem(noteItem);
+        vaultItems.push(noteItem);
+        closeModal('noteModal');
+        document.getElementById('noteTitleInput').value = '';
+        document.getElementById('noteBodyInput').value = '';
+        renderGrid();
+        updateStatsUI();
+        toast("📝 Secure note saved", "success");
+    }
+
+    async function downloadItem(item) {
+        try {
+            const dec = await decryptBlob(item.encryptedData, activeKey);
+            const blob = new Blob([dec], { type: item.type || 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = item.name.replace('📝 ', '');
+            a.click();
+            URL.revokeObjectURL(url);
+            toast("Download started", "success");
+        } catch(e) {
+            toast("Decrypt error", "error");
+        }
+    }
+
+    async function deleteItem(item) {
+        if (!confirm(`Permanently delete "${item.name}"?`)) return;
+        await deleteItemDB(item.id);
+        vaultItems = vaultItems.filter(i => i.id !== item.id);
+        renderGrid();
+        updateStatsUI();
+        toast("🗑️ Item deleted", "info");
+    }
+
+    async function previewItem(item) {
+        try {
+            const dec = await decryptBlob(item.encryptedData, activeKey);
+            if (item.isNote) {
+                const note = JSON.parse(new TextDecoder().decode(dec));
+                alert(`📓 ${note.title}\n\n${note.body}\n\nCreated: ${new Date(note.created).toLocaleString()}`);
+            } else if (item.type && item.type.startsWith('image/')) {
+                const blob = new Blob([dec], { type: item.type });
+                const url = URL.createObjectURL(blob);
+                const win = window.open();
+                win.document.write(`<img src="${url}" style="max-width:100%; margin: 20px auto; display: block;">`);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } else if (item.type && item.type.startsWith('video/')) {
+                const blob = new Blob([dec], { type: item.type });
+                const url = URL.createObjectURL(blob);
+                const win = window.open();
+                win.document.write(`<video controls autoplay style="max-width:100%" src="${url}"></video>`);
+            } else {
+                toast("Preview only supports images, videos, and notes", "info");
+            }
+        } catch(e) {
+            toast("Cannot decrypt file", "error");
+        }
+    }
+
+    // Google Drive integration
+    function linkGoogleDrive() {
+        if (!activeKey) {
+            toast("Please unlock vault first", "error");
+            return;
+        }
+        // Simulated Google Drive linking
+        gDriveToken = "demo_token_" + Date.now();
+        localStorage.setItem('gdrive_token', gDriveToken);
+        updateGDriveUI();
+        toast("✅ Google Drive linked (demo mode). You can now backup/restore .ivault files.", "success");
+    }
+
+    function loadGDriveTokenFromStorage() {
+        const t = localStorage.getItem('gdrive_token');
+        if (t) {
+            gDriveToken = t;
+            updateGDriveUI();
+        }
+    }
+
+    function updateGDriveUI() {
+        const badge = document.getElementById('gdriveStatusBadge');
+        if (gDriveToken) {
+            badge.innerHTML = `<i class="fab fa-google-drive"></i> GDrive: Connected`;
+            badge.style.background = "#e6f4ea";
+        } else {
+            badge.innerHTML = `<i class="fab fa-google-drive"></i> GDrive: Not linked`;
+            badge.style.background = "#f1f3f4";
+        }
+    }
+
+    async function manualBackupToDrive() {
+        if (!activeKey) {
+            toast("Unlock vault first", "error");
+            return;
+        }
+        if (!gDriveToken) {
+            toast("Please link Google Drive first", "error");
+            return;
+        }
+        
+        showBackupProgress(true, "Creating encrypted backup...");
+        try {
+            const exportData = vaultItems.map(f => ({
+                id: f.id, name: f.name, type: f.type, size: f.size,
+                encryptedData: f.encryptedData, uploadedAt: f.uploadedAt, isNote: f.isNote
+            }));
+            const encryptedBackup = await encryptBlob(new TextEncoder().encode(JSON.stringify(exportData)), activeKey);
+            const backupBlob = new Blob([JSON.stringify(encryptedBackup)], { type: 'application/json' });
+            const fileName = `ironvault_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.ivault`;
+            
+            // Download the backup file
+            const url = URL.createObjectURL(backupBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            localStorage.setItem('lastBackupTime', Date.now().toString());
+            document.getElementById('lastBackupStatus').innerText = new Date().toLocaleString();
+            toast(`✅ Backup file "${fileName}" downloaded. Upload this file to your Google Drive for cloud storage.`, "success");
+        } catch(e) {
+            toast("Backup failed: " + e.message, "error");
+        } finally {
+            showBackupProgress(false);
+        }
+    }
+
+    async function restoreFromDriveFile() {
+        if (!activeKey) {
+            toast("Unlock vault first", "error");
+            return;
+        }
+        
+        const fileInput = document.getElementById('restoreFileInput');
+        if (!fileInput.files.length) {
+            toast("Please select a .ivault backup file", "error");
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        if (!file.name.endsWith('.ivault')) {
+            toast("Invalid backup file format", "error");
+            return;
+        }
+        
+        showBackupProgress(true, "Restoring from backup...");
+        try {
+            const content = await file.text();
+            const backup = JSON.parse(content);
+            const decrypted = await decryptBlob({ iv: backup.iv, data: backup.data }, activeKey);
+            const restoredItems = JSON.parse(new TextDecoder().decode(decrypted));
+            
+            await clearAllItems();
+            for (const item of restoredItems) {
+                await saveItem(item);
+            }
+            vaultItems = restoredItems;
+            renderGrid();
+            updateStatsUI();
+            closeModal('restoreDriveModal');
+            fileInput.value = '';
+            toast("✅ Vault restored successfully!", "success");
+        } catch(err) {
+            toast("Restore failed: " + err.message, "error");
+        } finally {
+            showBackupProgress(false);
+        }
+    }
+
+    function showRestoreFromDriveModal() {
+        document.getElementById('restoreDriveModal').classList.add('show');
+    }
 
     // Password Change
-    async function changeMasterPassword() { const old=document.getElementById('oldPw').value; const new1=document.getElementById('newPw1').value; const new2=document.getElementById('newPw2').value; if(new1.length<8){toast("New password min 8","error");return;} if(new1!==new2){toast("Mismatch","error");return;} const meta=await getVaultMeta(); if(!meta){toast("No vault","error");return;} try{ const oldKey=await deriveKey(old,meta.salt); await decryptBlob(meta.metaEnc,oldKey); const newSalt=crypto.getRandomValues(new Uint8Array(16)); const newKey=await deriveKey(new1,newSalt); const oldMetaDec=await decryptBlob(meta.metaEnc,oldKey); const newEncMeta=await encryptBlob(oldMetaDec,newKey); await storeVaultMeta(newSalt,newEncMeta); const reEncryptAll=async()=>{ for(let item of vaultItems){ const decrypted=await decryptBlob(item.encryptedData,oldKey); const newEnc=await encryptBlob(decrypted,newKey); item.encryptedData=newEnc; await saveItem(item); } }; await reEncryptAll(); activeKey=newKey; toast("Password changed, all data re-encrypted!","success"); closeModal('changePwModal'); }catch(e){toast("Current password wrong","error");} }
-    function lockVaultAndLogout() { activeKey=null; vaultItems=[]; document.getElementById('loginContainer').style.display='flex'; document.getElementById('vaultMainUI').style.display='none'; document.getElementById('loginPassword').value=''; toast("Vault locked.","info"); }
+    async function changeMasterPassword() {
+        const old = document.getElementById('oldPw').value;
+        const new1 = document.getElementById('newPw1').value;
+        const new2 = document.getElementById('newPw2').value;
+        
+        if (new1.length < 8) {
+            toast("New password must be at least 8 characters", "error");
+            return;
+        }
+        if (new1 !== new2) {
+            toast("New passwords do not match", "error");
+            return;
+        }
+        
+        const meta = await getVaultMeta();
+        if (!meta) {
+            toast("No vault found", "error");
+            return;
+        }
+        
+        try {
+            const oldKey = await deriveKey(old, meta.salt);
+            await decryptBlob(meta.metaEnc, oldKey);
+            
+            const newSalt = crypto.getRandomValues(new Uint8Array(16));
+            const newKey = await deriveKey(new1, newSalt);
+            const oldMetaDec = await decryptBlob(meta.metaEnc, oldKey);
+            const newEncMeta = await encryptBlob(oldMetaDec, newKey);
+            await storeVaultMeta(newSalt, newEncMeta);
+            
+            // Re-encrypt all items with new key
+            for (let item of vaultItems) {
+                const decrypted = await decryptBlob(item.encryptedData, oldKey);
+                const newEnc = await encryptBlob(decrypted, newKey);
+                item.encryptedData = newEnc;
+                await saveItem(item);
+            }
+            
+            activeKey = newKey;
+            closeModal('changePwModal');
+            document.getElementById('oldPw').value = '';
+            document.getElementById('newPw1').value = '';
+            document.getElementById('newPw2').value = '';
+            toast("✅ Password changed successfully! All data re-encrypted.", "success");
+        } catch(e) {
+            toast("Current password is incorrect", "error");
+        }
+    }
 
-    // UI rendering (Google Drive style)
-    function renderGrid() { let filtered=vaultItems.filter(i=>i.name.toLowerCase().includes(currentSearch.toLowerCase())); if(currentSort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name)); else if(currentSort==='size') filtered.sort((a,b)=>(a.size||0)-(b.size||0)); else filtered.sort((a,b)=>(b.uploadedAt||0)-(a.uploadedAt||0)); const container=document.getElementById('fileGrid'); if(filtered.length===0){ container.innerHTML=`<div style="grid-column:1/-1; text-align:center; padding:80px;"><i class="fas fa-cloud-upload-alt" style="font-size:56px; color:#cbd5e1;"></i><p>No items. Upload or paste media.</p></div>`; return; } container.innerHTML=filtered.map(f=>`<div class="drive-card"><div class="card-icon">${f.isNote?'📓':getIconByMime(f.name)}</div><div class="card-title">${escapeHtml(f.name.length>45?f.name.slice(0,42)+'...':f.name)}</div><div class="card-meta"><span>${f.isNote?'Note':(f.type?.split('/')[0]||'file')}</span><span>${formatBytes(f.size||0)}</span></div><div class="card-actions"><button class="icon-btn" onclick='previewItemProxy(${JSON.stringify(f)})'><i class="fas fa-eye"></i></button><button class="icon-btn" onclick='downloadItemProxy(${JSON.stringify(f)})'><i class="fas fa-download"></i></button><button class="icon-btn" onclick='deleteItemProxy(${JSON.stringify(f)})'><i class="fas fa-trash"></i></button></div></div>`).join(''); }
-    function getIconByMime(name){ const ext=name.split('.').pop()?.toLowerCase(); if(['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️'; if(['mp4','mov','webm','avi'].includes(ext)) return '🎬'; return '📄'; }
-    function formatBytes(b){ if(b===0) return '0 B'; const k=1024,i=Math.floor(Math.log(b)/Math.log(k)); return parseFloat((b/Math.pow(k,i)).toFixed(1))+' '+['B','KB','MB','GB'][i]; }
-    function updateStatsUI(){ document.getElementById('statTotalItems').innerText=vaultItems.length; const total=vaultItems.reduce((s,i)=>s+(i.size||0),0); document.getElementById('statTotalSize').innerText=formatBytes(total); const last=localStorage.getItem('lastBackupTime'); if(last) document.getElementById('lastBackupStatus').innerText=new Date(parseInt(last)).toLocaleString(); else document.getElementById('lastBackupStatus').innerText='Never'; }
-    function filterAndRender(){ currentSearch=document.getElementById('searchInput').value; currentSort=document.getElementById('sortSelect').value; renderGrid(); }
-    function showSecureNoteModal(){ document.getElementById('noteModal').classList.add('show'); }
-    function showChangePasswordModal(){ document.getElementById('changePwModal').classList.add('show'); }
-    function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-    function toast(msg,type){ const t=document.createElement('div'); t.className='toast-message'; t.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-circle':'fa-info-circle'}"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-    function showBackupProgress(show,msg){ const area=document.getElementById('backupProgressArea'); if(show){ area.style.display='block'; document.getElementById('backupMsg').innerText=msg; document.getElementById('backupProgressFill').style.width='70%'; setTimeout(()=>document.getElementById('backupProgressFill').style.width='100%',300); } else { area.style.display='none'; document.getElementById('backupProgressFill').style.width='0%'; } }
-    function attachPasteHandler(){ document.addEventListener('paste',async(e)=>{ if(!activeKey) return; const items=e.clipboardData.items; for(let it of items){ if(it.type.indexOf('image')!==-1){ const file=it.getAsFile(); if(file){ const ext=file.type.split('/')[1]||'png'; const fileName=`Pasted_${Date.now()}.${ext}`; const renamed=new File([file],fileName,{type:file.type}); await addEncryptedFile(renamed); renderGrid(); updateStatsUI(); toast(`📋 Pasted ${fileName}`,"success"); } } } }); }
-    function showCreateVaultFlow(){ document.getElementById('createVaultModal').classList.add('show'); }
-    // proxy helpers
-    window.previewItemProxy=previewItem; window.downloadItemProxy=downloadItem; window.deleteItemProxy=deleteItem; window.escapeHtml=(s)=>s.replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
-    window.handleFileUpload=handleFileUpload;
-    if(localStorage.getItem('drive_vault_salt')) document.getElementById('loginPassword').focus();
+    function lockVaultAndLogout() {
+        activeKey = null;
+        vaultItems = [];
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('vaultMainUI').style.display = 'none';
+        document.getElementById('loginPassword').value = '';
+        toast("🔒 Vault locked", "info");
+    }
+
+    // UI Rendering
+    function renderGrid() {
+        let filtered = vaultItems.filter(i => i.name.toLowerCase().includes(currentSearch.toLowerCase()));
+        if (currentSort === 'name') {
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (currentSort === 'size') {
+            filtered.sort((a, b) => (a.size || 0) - (b.size || 0));
+        } else {
+            filtered.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+        }
+        
+        const container = document.getElementById('fileGrid');
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:80px;"><i class="fas fa-cloud-upload-alt" style="font-size:56px; color:#cbd5e1;"></i><p style="margin-top:16px;">No items. Upload files or paste images/videos (Ctrl+V)</p></div>`;
+            return;
+        }
+        
+        container.innerHTML = filtered.map(f => `
+            <div class="drive-card">
+                <div class="card-icon">${f.isNote ? '📓' : getIconByMime(f.name)}</div>
+                <div class="card-title">${escapeHtml(f.name.length > 45 ? f.name.slice(0,42) + '...' : f.name)}</div>
+                <div class="card-meta">
+                    <span>${f.isNote ? 'Note' : (f.type?.split('/')[0] || 'file')}</span>
+                    <span>${formatBytes(f.size || 0)}</span>
+                </div>
+                <div class="card-actions">
+                    <button class="icon-btn" onclick='previewItemProxy(${JSON.stringify(f)})' title="Preview"><i class="fas fa-eye"></i></button>
+                    <button class="icon-btn" onclick='downloadItemProxy(${JSON.stringify(f)})' title="Download"><i class="fas fa-download"></i></button>
+                    <button class="icon-btn" onclick='deleteItemProxy(${JSON.stringify(f)})' title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function getIconByMime(name) {
+        const ext = name.split('.').pop()?.toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext)) return '🖼️';
+        if (['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(ext)) return '🎬';
+        if (['mp3', 'wav', 'ogg', 'flac'].includes(ext)) return '🎵';
+        if (['pdf'].includes(ext)) return '📕';
+        if (['zip', 'rar', '7z'].includes(ext)) return '🗜️';
+        return '📄';
+    }
+
+    function formatBytes(b) {
+        if (b === 0) return '0 B';
+        const k = 1024;
+        const i = Math.floor(Math.log(b) / Math.log(k));
+        return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
+    }
+
+    function updateStatsUI() {
+        document.getElementById('statTotalItems').innerText = vaultItems.length;
+        const total = vaultItems.reduce((s, i) => s + (i.size || 0), 0);
+        document.getElementById('statTotalSize').innerText = formatBytes(total);
+        const last = localStorage.getItem('lastBackupTime');
+        if (last) {
+            document.getElementById('lastBackupStatus').innerText = new Date(parseInt(last)).toLocaleString();
+        }
+    }
+
+    function filterAndRender() {
+        currentSearch = document.getElementById('searchInput').value;
+        currentSort = document.getElementById('sortSelect').value;
+        renderGrid();
+    }
+
+    function showSecureNoteModal() {
+        document.getElementById('noteModal').classList.add('show');
+    }
+
+    function showChangePasswordModal() {
+        document.getElementById('changePwModal').classList.add('show');
+    }
+
+    function showCreateVaultFlow() {
+        document.getElementById('createVaultModal').classList.add('show');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+    }
+
+    function toast(msg, type) {
+        const t = document.createElement('div');
+        t.className = 'toast-message';
+        const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
+        t.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    function showBackupProgress(show, msg) {
+        const area = document.getElementById('backupProgressArea');
+        if (show) {
+            area.style.display = 'block';
+            document.getElementById('backupMsg').innerText = msg;
+            document.getElementById('backupProgressFill').style.width = '70%';
+            setTimeout(() => document.getElementById('backupProgressFill').style.width = '100%', 300);
+        } else {
+            area.style.display = 'none';
+            document.getElementById('backupProgressFill').style.width = '0%';
+        }
+    }
+
+    function attachPasteHandler() {
+        document.addEventListener('paste', async (e) => {
+            if (!activeKey) {
+                toast("Vault is locked. Unlock first to paste.", "error");
+                return;
+            }
+            
+            const items = e.clipboardData.items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        const ext = file.type.split('/')[1] || 'png';
+                        const fileName = `Pasted_${Date.now()}.${ext}`;
+                        const renamed = new File([file], fileName, { type: file.type });
+                        await addEncryptedFile(renamed);
+                        renderGrid();
+                        updateStatsUI();
+                        toast(`📋 Pasted image saved as ${fileName}`, "success");
+                    }
+                } else if (item.type.indexOf('video') !== -1) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        const ext = file.type.split('/')[1] || 'mp4';
+                        const fileName = `Pasted_Video_${Date.now()}.${ext}`;
+                        const renamed = new File([file], fileName, { type: file.type });
+                        await addEncryptedFile(renamed);
+                        renderGrid();
+                        updateStatsUI();
+                        toast(`📋 Pasted video saved`, "success");
+                    }
+                }
+            }
+        });
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Proxy functions for global access
+    window.previewItemProxy = previewItem;
+    window.downloadItemProxy = downloadItem;
+    window.deleteItemProxy = deleteItem;
+    window.handleFileUpload = handleFileUpload;
+
+    // Drag and drop
+    document.addEventListener('dragover', (e) => e.preventDefault());
+    document.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        if (activeKey && e.dataTransfer.files.length) {
+            await handleFileUpload(e.dataTransfer.files);
+        }
+    });
+
+    // Check for existing vault on load
+    window.onload = async () => {
+        const meta = await getVaultMeta();
+        if (!meta) {
+            // No vault exists, user needs to create one
+            toast("Welcome! Create a new vault to get started.", "info");
+        }
+    };
 </script>
 </body>
 </html>
